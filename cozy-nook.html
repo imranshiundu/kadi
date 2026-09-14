@@ -1,0 +1,1439 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="theme-color" content="#26201A">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="default">
+<title>Card Nook — a cozy home for your cards</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,500;0,9..144,700;1,9..144,600&family=Nunito:wght@400;600;700;800&family=Space+Mono:wght@700&display=swap" rel="stylesheet">
+<style>
+/* ============ FOUNDATION ============ */
+*{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent}
+:root{
+  --paper:#FBF5EA; --paper2:#F1E7D4; --ink:#26201A; --ink2:#7A6F60;
+  --coral:#F4562A; --mint:#2E9E78; --butter:#FFC98F; --peach:#FFB68C;
+  --line:2.5px solid var(--ink);
+  --stk-sh:0 5px 0 var(--ink);
+  --r:20px;
+}
+html,body{height:100%}
+body{
+  font-family:'Nunito',ui-rounded,sans-serif; color:var(--ink);
+  background:#EAE0CC;
+  background-image:radial-gradient(rgba(38,32,26,.10) 1.3px, transparent 1.3px);
+  background-size:22px 22px;
+}
+#app{
+  position:relative; max-width:440px; margin:0 auto; min-height:100dvh;
+  background:var(--paper); display:flex; flex-direction:column;
+}
+@media(min-width:480px){ #app{border-left:var(--line);border-right:var(--line);box-shadow:0 0 0 6px rgba(38,32,26,.06)} }
+.grain{position:fixed;inset:0;pointer-events:none;z-index:200;opacity:.05;
+  background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='140' height='140'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.85' numOctaves='2'/%3E%3C/filter%3E%3Crect width='140' height='140' filter='url(%23n)'/%3E%3C/svg%3E");}
+button{font-family:inherit;color:inherit;background:none;border:none;cursor:pointer}
+input,select,textarea{font-family:inherit;font-size:16px;color:var(--ink)}
+h1,h2,h3{font-family:'Fraunces',serif}
+.mono{font-family:'Space Mono',monospace}
+.ic{width:22px;height:22px;stroke:currentColor;stroke-width:2;fill:none;stroke-linecap:round;stroke-linejoin:round;display:block}
+.hide{display:none!important}
+
+/* ============ STICKER PRIMITIVES ============ */
+.stk{background:#fff;border:var(--line);border-radius:var(--r);box-shadow:var(--stk-sh)}
+.btn{display:inline-flex;align-items:center;justify-content:center;gap:8px;font-weight:800;font-size:16px;
+  padding:13px 20px;border-radius:16px;border:var(--line);box-shadow:var(--stk-sh);
+  background:#fff;transition:transform .08s, box-shadow .08s;user-select:none}
+.btn:active{transform:translateY(4px);box-shadow:0 1px 0 var(--ink)}
+.btn.primary{background:var(--coral);color:#FFF6EC}
+.btn.dark{background:var(--ink);color:var(--paper)}
+.btn.mint{background:var(--mint);color:#F2FBF6}
+.btn.small{padding:9px 14px;font-size:14px;border-radius:12px;box-shadow:0 3px 0 var(--ink)}
+.btn.small:active{transform:translateY(3px);box-shadow:0 1px 0 var(--ink)}
+.btn:disabled{opacity:.45;pointer-events:none}
+.iconbtn{width:42px;height:42px;border-radius:14px;border:var(--line);background:#fff;box-shadow:0 3px 0 var(--ink);
+  display:flex;align-items:center;justify-content:center;transition:transform .08s, box-shadow .08s;flex:none}
+.iconbtn:active{transform:translateY(3px);box-shadow:0 0 0 var(--ink)}
+.pill{display:inline-flex;align-items:center;gap:6px;padding:7px 13px;border:2px solid var(--ink);border-radius:999px;
+  background:#fff;font-weight:800;font-size:13px}
+.field{display:flex;flex-direction:column;gap:6px;margin-bottom:14px}
+.field label{font-weight:800;font-size:13px;letter-spacing:.02em}
+.field input,.field textarea,.field select{border:2px solid var(--ink);border-radius:14px;padding:12px 14px;background:#FFFDF7;outline:none;width:100%}
+.field input:focus,.field textarea:focus{box-shadow:0 3px 0 var(--ink)}
+.field .hint{font-size:12px;color:var(--ink2);display:flex;align-items:center;gap:6px;font-weight:700}
+.field .hint.ok{color:var(--mint)} .field .hint.warn{color:var(--coral)}
+.shake{animation:shake .4s}
+@keyframes shake{20%{transform:translateX(-8px)}40%{transform:translateX(8px)}60%{transform:translateX(-5px)}80%{transform:translateX(5px)}}
+
+/* ============ HEADER ============ */
+header.top{display:flex;align-items:center;justify-content:space-between;padding:20px 20px 10px}
+.greet .hi{font-size:13px;font-weight:800;color:var(--ink2);letter-spacing:.06em;text-transform:uppercase}
+.greet h1{font-size:26px;font-weight:700;line-height:1.1}
+.greet h1 em{font-style:italic;color:var(--coral)}
+.topright{display:flex;gap:10px;align-items:center}
+.mini-mascot{width:46px;height:46px;border:var(--line);border-radius:50%;background:#FFE9CF;overflow:hidden;box-shadow:0 3px 0 var(--ink);flex:none}
+.mini-mascot svg{width:170%;height:170%;margin:-38% 0 0 -35%}
+
+/* ============ MAIN / NAV ============ */
+main{flex:1;padding-bottom:96px}
+.view{display:none;animation:viewin .3s ease}
+.view.on{display:block}
+@keyframes viewin{from{opacity:0;transform:translateY(10px)}to{opacity:1}}
+nav.tabs{position:fixed;bottom:0;left:50%;transform:translateX(-50%);width:100%;max-width:440px;z-index:60;
+  background:var(--paper);border-top:var(--line);display:flex;justify-content:space-around;align-items:flex-end;
+  padding:8px 8px calc(10px + env(safe-area-inset-bottom))}
+.navbtn{display:flex;flex-direction:column;align-items:center;gap:3px;font-size:11px;font-weight:800;color:var(--ink2);
+  padding:6px 14px;border-radius:14px;flex:1}
+.navbtn.on{color:var(--coral)}
+.navbtn .dot{width:5px;height:5px;border-radius:50%;background:var(--coral);opacity:0}
+.navbtn.on .dot{opacity:1}
+.scanfab{width:64px;height:64px;border-radius:50%;background:var(--ink);color:var(--paper);border:3px solid var(--paper);
+  outline:2.5px solid var(--ink);display:flex;align-items:center;justify-content:center;margin-top:-34px;
+  box-shadow:0 5px 0 rgba(38,32,26,.35);transition:transform .1s;flex:none}
+.scanfab:active{transform:translateY(3px)}
+.scanfab .ic{width:28px;height:28px;stroke-width:2.4}
+
+/* ============ WALLET VIEW ============ */
+.searchrow{display:flex;gap:10px;padding:4px 20px 12px;align-items:center}
+.searchrow .search{flex:1;display:flex;align-items:center;gap:8px;border:2px solid var(--ink);border-radius:999px;
+  background:#FFFDF7;padding:10px 16px}
+.searchrow input{border:none;outline:none;background:none;flex:1;font-weight:700;min-width:0}
+.deckbar{display:flex;align-items:center;justify-content:space-between;padding:0 20px 10px}
+.deckbar .count{color:var(--ink2);font-weight:800;font-size:13px;display:flex;gap:6px;align-items:center}
+.chips{display:flex;gap:8px;overflow-x:auto;padding:2px 20px 14px;scrollbar-width:none}
+.chips::-webkit-scrollbar{display:none}
+.chip{flex:none;padding:8px 14px;border:2px solid var(--ink);border-radius:999px;background:#fff;font-weight:800;font-size:13px;display:flex;gap:6px;align-items:center;box-shadow:0 3px 0 var(--ink);transition:transform .08s}
+.chip:active{transform:translateY(3px);box-shadow:none}
+.chip.on{background:var(--ink);color:var(--paper)}
+.deck{position:relative;margin:0 20px}
+.deck .cardw{cursor:pointer}
+.deck.stacked .cardw{position:absolute;left:0;right:0;transition:transform .45s cubic-bezier(.3,.8,.3,1)}
+.deck-hint{text-align:center;color:var(--ink2);font-size:12px;font-weight:700;padding:10px 0 0}
+.empty{padding:30px 30px 10px;text-align:center}
+.empty .mascot{width:170px;margin:0 auto}
+.empty h2{font-size:22px;margin:6px 0 4px}
+.empty p{color:var(--ink2);font-weight:700;margin-bottom:18px}
+
+/* ============ 3D CARD ============ */
+.card3d{position:relative;aspect-ratio:1.586;container-type:inline-size;perspective:1100px;border-radius:5.5cqi}
+.c3d-in{position:absolute;inset:0;transform-style:preserve-3d;
+  transform:rotateY(calc(var(--flip,0deg) + var(--ry,0deg))) rotateX(var(--rx,0deg));
+  transition:transform .16s ease-out}
+.c3d-in.spin{transition:transform .68s cubic-bezier(.3,.7,.25,1)}
+.cface{position:absolute;inset:0;border-radius:5.5cqi;overflow:hidden;backface-visibility:hidden;-webkit-backface-visibility:hidden;
+  border:2.5px solid var(--cink);background:var(--cbg);color:var(--cink);
+  box-shadow:0 12px 26px rgba(38,32,26,.22);display:flex;flex-direction:column;justify-content:space-between;padding:5.5cqi 6cqi}
+.cface.back{transform:rotateY(180deg)}
+.cpat{position:absolute;inset:0;background-size:6.5cqi;opacity:.55;pointer-events:none}
+.cglare{position:absolute;inset:0;pointer-events:none;opacity:var(--glare,0);transition:opacity .3s;
+  background:radial-gradient(circle at var(--gx,75%) var(--gy,15%),rgba(255,255,255,.55),rgba(255,255,255,0) 58%)}
+.crow{display:flex;justify-content:space-between;align-items:flex-end;gap:3cqi;position:relative;z-index:2}
+.corg{font-weight:800;font-size:5.4cqi;letter-spacing:.03em;max-width:60cqi;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.cctl{width:7.5cqi;height:7.5cqi;stroke:var(--cink);stroke-width:2.6;flex:none}
+.cchip{width:13cqi;height:10cqi;margin:1cqi 0;position:relative;z-index:2}
+.cnum{font-family:'Space Mono',monospace;font-weight:700;font-size:7.4cqi;letter-spacing:.06em;position:relative;z-index:2;
+  text-shadow:0 1px 0 rgba(255,255,255,.35),0 -1px 0 rgba(0,0,0,.15)}
+.darkcard .cnum{text-shadow:0 1px 0 rgba(0,0,0,.5),0 -1px 0 rgba(255,255,255,.12)}
+.clabel{font-size:3.1cqi;font-weight:800;opacity:.65;letter-spacing:.12em}
+.cval{font-size:4.4cqi;font-weight:800;max-width:44cqi;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.cbadge{display:inline-flex;align-items:center;gap:1.6cqi;font-size:3.4cqi;font-weight:800;border:2px solid var(--cink);
+  border-radius:99cqi;padding:1.4cqi 3cqi;background:rgba(255,255,255,.28)}
+.cbadge .ic{width:4.4cqi;height:4.4cqi;stroke-width:2.6}
+.cface .bimg{position:absolute;inset:0;width:100%;height:100%;object-fit:cover}
+.magstripe{position:absolute;left:0;right:0;top:14cqi;height:9cqi;background:rgba(0,0,0,.82)}
+.sigrow{display:flex;gap:2.5cqi;align-items:center;position:relative;z-index:2;margin-top:4cqi}
+.sig{flex:1;background:#F6F1E4;border:1.5px solid rgba(0,0,0,.25);border-radius:1.5cqi;padding:2cqi 3cqi;
+  font-family:'Fraunces',serif;font-style:italic;font-size:5cqi;transform:rotate(-2deg);overflow:hidden;white-space:nowrap}
+.cvvbox{border:2px solid var(--cink);border-radius:1.6cqi;padding:1.6cqi 2.6cqi;font-family:'Space Mono',monospace;font-weight:700;font-size:5cqi;background:rgba(255,255,255,.3)}
+.smallprint{font-size:2.9cqi;opacity:.6;font-weight:700;line-height:1.5;position:relative;z-index:2}
+
+/* ============ SCAN / TYPE PICKER ============ */
+.viewhead{padding:8px 20px 16px}
+.viewhead h2{font-size:24px}
+.viewhead p{color:var(--ink2);font-weight:700;margin-top:3px}
+.typegrid{display:grid;grid-template-columns:1fr 1fr;gap:14px;padding:0 20px}
+.typecard{padding:18px 14px 14px;text-align:left;border:var(--line);border-radius:var(--r);background:#fff;box-shadow:var(--stk-sh);transition:transform .12s}
+.typecard:active{transform:translateY(4px);box-shadow:0 1px 0 var(--ink)}
+.typecard:nth-child(odd){transform:rotate(-1.2deg)}
+.typecard:nth-child(even){transform:rotate(1.1deg)}
+.typecard .art{height:56px;margin-bottom:10px}
+.typecard .art svg{height:100%;display:block;margin:0 auto}
+.typecard b{font-size:16px}
+.typecard span{display:block;font-size:12px;color:var(--ink2);font-weight:700;margin-top:2px}
+
+/* ============ WIZARD ============ */
+.ovl{position:fixed;inset:0;z-index:90;display:none}
+.ovl.on{display:block}
+.scrim{position:absolute;inset:0;background:rgba(38,32,26,.55)}
+.wizard{position:absolute;inset:0;background:var(--paper);display:flex;flex-direction:column;animation:sheetup .35s cubic-bezier(.3,.8,.3,1)}
+@keyframes sheetup{from{transform:translateY(60px);opacity:0}}
+.wizhead{display:flex;align-items:center;gap:12px;padding:18px 20px 8px}
+.wizhead h2{flex:1;font-size:21px}
+.wizdots{display:flex;gap:6px;justify-content:center;padding:4px 0 12px}
+.wizdots i{width:8px;height:8px;border-radius:50%;border:2px solid var(--ink);background:transparent}
+.wizdots i.on{background:var(--coral)}
+.wizbody{flex:1;overflow-y:auto;padding:6px 20px 30px}
+.wizfoot{display:flex;gap:12px;padding:14px 20px calc(16px + env(safe-area-inset-bottom));border-top:2px dashed rgba(38,32,26,.25);background:var(--paper)}
+.wizfoot .btn{flex:1}
+.camwrap{position:relative;border:var(--line);border-radius:var(--r);overflow:hidden;background:#111;height:320px}
+.camwrap video{width:100%;height:100%;object-fit:cover;display:block}
+.camframe{position:absolute;left:6%;right:6%;top:50%;transform:translateY(-50%);aspect-ratio:1.586;pointer-events:none}
+.camframe i{position:absolute;width:26px;height:26px;border:4px solid #FFF3DF;border-radius:5px}
+.camframe i:nth-child(1){top:0;left:0;border-right:none;border-bottom:none}
+.camframe i:nth-child(2){top:0;right:0;border-left:none;border-bottom:none}
+.camframe i:nth-child(3){bottom:0;left:0;border-right:none;border-top:none}
+.camframe i:nth-child(4){bottom:0;right:0;border-left:none;border-top:none}
+.cammsg{position:absolute;top:12px;left:0;right:0;text-align:center;color:#FFF3DF;font-weight:800;font-size:13px;text-shadow:0 2px 6px rgba(0,0,0,.6)}
+.snapthumbs{display:flex;gap:12px;margin:14px 0}
+.snapthumb{width:96px;aspect-ratio:1.586;border:2.5px solid var(--ink);border-radius:10px;overflow:hidden;position:relative;background:#fff}
+.snapthumb img{width:100%;height:100%;object-fit:cover}
+.snapthumb em{position:absolute;bottom:0;left:0;right:0;font-size:9px;font-weight:800;font-style:normal;text-align:center;background:rgba(38,32,26,.8);color:var(--paper);padding:2px}
+.stylepick h4{font-family:'Nunito';font-size:13px;font-weight:800;margin:16px 0 8px;color:var(--ink2);letter-spacing:.04em;text-transform:uppercase}
+.swrow{display:flex;gap:10px;flex-wrap:wrap}
+.sw{width:44px;height:44px;border-radius:50%;border:2.5px solid var(--ink);box-shadow:0 3px 0 var(--ink);position:relative;transition:transform .1s}
+.sw:active{transform:translateY(3px)}
+.sw.on::after{content:'';position:absolute;inset:-8px;border:2.5px dashed var(--coral);border-radius:50%}
+.patrow{display:flex;gap:10px;flex-wrap:wrap}
+.pat{width:52px;height:36px;border-radius:10px;border:2.5px solid var(--ink);box-shadow:0 3px 0 var(--ink);background-size:14px;position:relative}
+.pat.on::after{content:'';position:absolute;inset:-7px;border:2.5px dashed var(--coral);border-radius:14px}
+
+/* ============ SHEETS (bottom) ============ */
+.sheetroot{position:fixed;inset:0;z-index:95;display:none}
+.sheetroot.on{display:block}
+.sheet{position:absolute;left:50%;transform:translateX(-50%);bottom:0;width:100%;max-width:440px;max-height:92dvh;overflow-y:auto;
+  background:var(--paper);border:var(--line);border-bottom:none;border-radius:26px 26px 0 0;padding:10px 20px calc(24px + env(safe-area-inset-bottom));
+  animation:sheetup .4s cubic-bezier(.3,.85,.3,1)}
+.handle{width:52px;height:6px;border-radius:3px;background:rgba(38,32,26,.25);margin:2px auto 14px}
+.sheet h3{font-size:22px;margin-bottom:2px}
+.sheet .sub{color:var(--ink2);font-weight:700;font-size:14px;margin-bottom:16px}
+.dcard-wrap{max-width:340px;margin:0 auto 8px;position:relative}
+.dcard-tools{display:flex;justify-content:center;gap:10px;margin:10px 0 16px}
+.kv{display:flex;align-items:center;gap:10px;padding:13px 4px;border-bottom:2px dashed rgba(38,32,26,.18)}
+.kv .ic{color:var(--ink2);flex:none}
+.kv .k{font-size:12px;font-weight:800;color:var(--ink2);width:86px;flex:none}
+.kv .v{flex:1;font-weight:800;font-size:15px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.kv .v.secret{font-family:'Space Mono',monospace;letter-spacing:.05em}
+.kv .act{color:var(--coral);font-weight:800;font-size:13px;display:flex;align-items:center;gap:4px;flex:none}
+.actsheet{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-top:18px}
+.actsheet .btn{width:100%}
+.photorow{display:flex;gap:12px;margin-top:14px}
+.photorow .snapthumb{cursor:pointer}
+
+/* ============ PIN OVERLAY ============ */
+.pinroot{position:fixed;inset:0;z-index:120;display:none;align-items:center;justify-content:center;padding:20px}
+.pinroot.on{display:flex}
+.pincard{width:100%;max-width:340px;background:var(--paper);border:var(--line);border-radius:26px;box-shadow:0 8px 0 var(--ink);
+  padding:22px 22px 20px;text-align:center;animation:sheetup .35s cubic-bezier(.3,.85,.3,1)}
+.pincard .mascot{width:104px;margin:-64px auto -6px}
+.pincard h3{font-size:21px}
+.pincard .psub{color:var(--ink2);font-weight:700;font-size:13px;min-height:18px;margin:3px 0 10px}
+.pin-dots{display:flex;gap:12px;justify-content:center;margin:8px 0 16px}
+.pin-dots i{width:14px;height:14px;border-radius:50%;border:2.5px solid var(--ink);transition:background .1s,transform .1s}
+.pin-dots i.f{background:var(--coral);transform:scale(1.12)}
+.pin-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:10px}
+.pkey{aspect-ratio:1.35;border:2.5px solid var(--ink);border-radius:16px;background:#fff;box-shadow:0 4px 0 var(--ink);
+  font-size:22px;font-weight:800;display:flex;align-items:center;justify-content:center;transition:transform .06s,box-shadow .06s}
+.pkey:active{transform:translateY(4px);box-shadow:0 0 0 var(--ink);background:var(--butter)}
+.pkey.ghost{border:none;box-shadow:none;background:transparent;pointer-events:none}
+.pkey.back .ic{width:24px;height:24px}
+.pinsubmit{margin-top:12px;width:100%}
+.pin-no{margin-top:10px;font-weight:800;color:var(--coral);font-size:13px}
+
+/* ============ LOCK / ONBOARD ============ */
+.fullvl{position:fixed;inset:0;z-index:110;background:var(--paper);display:none;flex-direction:column;align-items:center;justify-content:center;padding:28px;text-align:center;overflow-y:auto}
+.fullvl.on{display:flex}
+.fullvl .mascot{width:190px}
+.fullvl h2{font-size:27px;margin:10px 0 4px}
+.fullvl p{color:var(--ink2);font-weight:700;max-width:300px;margin-bottom:14px}
+.fullvl .pinpadbox{width:100%;max-width:320px}
+
+/* ============ PAY ============ */
+.merchant-demo{margin:0 20px;padding:20px;display:flex;flex-direction:column;gap:14px}
+.merchant-top{display:flex;align-items:center;gap:14px}
+.mavatar{width:54px;height:54px;border-radius:16px;border:2.5px solid var(--ink);background:var(--butter);display:flex;align-items:center;justify-content:center;flex:none}
+.mavatar .ic{width:28px;height:28px}
+.merchant-top b{font-size:17px;display:block}
+.merchant-top span{font-size:13px;color:var(--ink2);font-weight:700}
+.payamount{font-family:'Fraunces',serif;font-size:34px;font-weight:700}
+.histhead{display:flex;align-items:center;gap:8px;padding:22px 20px 8px;font-weight:800;color:var(--ink2);font-size:13px;letter-spacing:.05em;text-transform:uppercase}
+.histrow{display:flex;align-items:center;gap:12px;margin:0 20px 10px;padding:13px 16px}
+.histrow .ic{flex:none;color:var(--ink2)}
+.histrow .t{flex:1;min-width:0}
+.histrow .t b{display:block;font-size:15px}
+.histrow .t span{font-size:12px;color:var(--ink2);font-weight:700}
+.histrow .amt{font-family:'Space Mono',monospace;font-weight:700;font-size:15px}
+.codebox{margin:0 20px;padding:14px 16px;border-radius:16px;background:var(--ink);color:#F2E8D5;font-family:'Space Mono',monospace;font-size:11.5px;line-height:1.7;overflow-x:auto;white-space:pre}
+.emptyrow{margin:6px 20px;padding:18px;text-align:center;color:var(--ink2);font-weight:700;font-size:14px;border:2px dashed rgba(38,32,26,.3);border-radius:16px}
+.picksheet{display:flex;gap:14px;overflow-x:auto;padding:6px 2px 14px;scrollbar-width:none}
+.picksheet::-webkit-scrollbar{display:none}
+.pickcard{flex:none;width:172px;cursor:pointer;transition:transform .15s}
+.pickcard .card3d{border-radius:5.5cqi}
+.pickcard.on{transform:translateY(-6px)}
+.picksel-name{text-align:center;font-size:12px;font-weight:800;margin-top:6px;color:var(--ink2)}
+.payok{text-align:center;padding:16px 0 4px}
+.payok .mascot{width:130px;margin:0 auto 4px}
+.payok .bigcheck{width:64px;height:64px;border-radius:50%;background:var(--mint);border:3px solid var(--ink);box-shadow:0 4px 0 var(--ink);display:flex;align-items:center;justify-content:center;margin:0 auto 12px;color:#F2FBF6;animation:pop .5s cubic-bezier(.3,1.6,.5,1)}
+@keyframes pop{from{transform:scale(0)}}
+
+/* ============ SETTINGS ============ */
+.setgroup{margin:0 20px 18px}
+.setgroup h4{font-size:12px;font-weight:800;color:var(--ink2);letter-spacing:.08em;text-transform:uppercase;margin:0 4px 8px}
+.setrow{display:flex;align-items:center;gap:12px;padding:14px 16px;background:#fff;border:2px solid var(--ink);border-radius:16px;box-shadow:0 3px 0 var(--ink);margin-bottom:10px;width:100%;text-align:left;transition:transform .08s}
+.setrow:active{transform:translateY(3px);box-shadow:0 0 0 var(--ink)}
+.setrow .ic{flex:none;color:var(--ink)}
+.setrow .t{flex:1;min-width:0}
+.setrow .t b{display:block;font-size:15px}
+.setrow .t span{font-size:12px;color:var(--ink2);font-weight:700}
+.setrow select{border:2px solid var(--ink);border-radius:10px;padding:7px 10px;font-weight:800;background:var(--paper)}
+.setrow.danger .ic{color:var(--coral)}
+.nettag{font-size:11px;font-weight:800;padding:4px 10px;border-radius:99px;border:2px solid var(--ink)}
+.nettag.ok{background:#CFEBDD;color:#14523C}
+.nettag.no{background:#FFD9CB;color:#7C2B0E}
+
+/* ============ MODAL / TOAST / LIGHTBOX ============ */
+.modalroot{position:fixed;inset:0;z-index:130;display:none;align-items:center;justify-content:center;padding:24px}
+.modalroot.on{display:flex}
+.modal{width:100%;max-width:320px;background:var(--paper);border:var(--line);border-radius:22px;box-shadow:0 7px 0 var(--ink);padding:22px;text-align:center;animation:sheetup .3s}
+.modal .mico{width:52px;height:52px;border-radius:50%;border:2.5px solid var(--ink);display:flex;align-items:center;justify-content:center;margin:0 auto 12px}
+.modal h3{font-size:20px;margin-bottom:6px}
+.modal p{color:var(--ink2);font-weight:700;font-size:14px;margin-bottom:18px}
+.modal .btnrow{display:flex;gap:10px}
+.modal .btnrow .btn{flex:1}
+#toasts{position:fixed;left:50%;transform:translateX(-50%);bottom:calc(96px + env(safe-area-inset-bottom));z-index:150;display:flex;flex-direction:column;gap:8px;width:min(400px,calc(100% - 32px));pointer-events:none}
+.toast{display:flex;align-items:center;gap:10px;background:var(--ink);color:var(--paper);border:2px solid var(--ink);border-radius:16px;
+  padding:12px 16px;font-weight:800;font-size:14px;box-shadow:0 5px 0 rgba(38,32,26,.3);animation:toastin .35s cubic-bezier(.3,1.4,.5,1)}
+.toast .ic{color:var(--butter);flex:none}
+@keyframes toastin{from{transform:translateY(20px);opacity:0}}
+.toast.bye{transition:.3s;opacity:0;transform:translateY(10px)}
+.lightbox{position:fixed;inset:0;z-index:140;background:rgba(38,32,26,.9);display:none;align-items:center;justify-content:center;padding:24px}
+.lightbox.on{display:flex}
+.lightbox img{max-width:100%;max-height:80vh;border:3px solid var(--paper);border-radius:14px}
+.lightbox .iconbtn{position:absolute;top:20px;right:20px}
+
+/* ============ MASCOT ============ */
+.mascot{display:block}
+.mascot .m-body,.mascot .m-body2{fill:#FFC98F;stroke:var(--ink);stroke-width:5}
+.mascot .m-card{fill:var(--coral);stroke:var(--ink);stroke-width:4}
+.mascot .m-stitch{stroke:rgba(38,32,26,.45);stroke-width:3;stroke-dasharray:2 8;stroke-linecap:round;fill:none}
+.mascot .m-heart{fill:var(--coral);stroke:var(--ink);stroke-width:3}
+.mascot .m-eye circle{fill:var(--ink)}
+.mascot .m-shine{fill:#FFF6EC}
+.mascot .m-eye path{stroke:var(--ink);stroke-width:5;fill:none;stroke-linecap:round}
+.mascot .m-blush{fill:#FF8E72;opacity:.75}
+.mascot .m-mouth{stroke:var(--ink);stroke-width:4.5;fill:none;stroke-linecap:round}
+.mascot .m-mouth.o{fill:var(--ink);stroke:none}
+.mascot .m-z text{font-family:'Fraunces',serif;font-style:italic;font-weight:700;fill:var(--ink)}
+.mascot .m-eye,.mascot .m-mouth,.mascot .m-z{display:none}
+.mascot[data-mood="wake"] .m-eye.o,.mascot[data-mood="wake"] .m-mouth.s{display:inline}
+.mascot[data-mood="wake"] .m-eye.o{animation:blink 4.6s infinite;transform-box:fill-box;transform-origin:center}
+.mascot[data-mood="happy"] .m-eye.h,.mascot[data-mood="happy"] .m-mouth.o{display:inline}
+.mascot[data-mood="happy"] .m-blush{transform:scale(1.25);transform-box:fill-box;transform-origin:center}
+.mascot[data-mood="sleep"] .m-eye.c,.mascot[data-mood="sleep"] .m-mouth.s,.mascot[data-mood="sleep"] .m-z{display:inline}
+.mascot[data-mood="sleep"]{animation:none}
+.mascot[data-mood="dizzy"] .m-eye.d,.mascot[data-mood="dizzy"] .m-mouth.s{display:inline}
+.mascot{animation:bob 3.6s ease-in-out infinite}
+@keyframes bob{0%,100%{transform:translateY(0)}50%{transform:translateY(-4px)}}
+@keyframes blink{0%,91%,100%{transform:scaleY(1)}94%{transform:scaleY(.06)}}
+.mascot .z2{animation:zfloat 2.6s ease-in-out infinite}
+@keyframes zfloat{0%,100%{transform:translateY(0);opacity:.4}50%{transform:translateY(-6px);opacity:1}}
+
+/* confetti burst */
+.burst-bit{position:fixed;z-index:160;width:12px;height:12px;pointer-events:none;border:2px solid var(--ink)}
+@keyframes bitfly{to{transform:translate(var(--bx),var(--by)) rotate(var(--br));opacity:0}}
+.burst-bit{animation:bitfly .8s cubic-bezier(.2,.7,.3,1) forwards}
+
+/* privacy scrim */
+#privacyOvl{position:fixed;inset:0;z-index:105;background:var(--paper);display:none;align-items:center;justify-content:center;flex-direction:column;gap:12px;font-weight:800;color:var(--ink2)}
+#privacyOvl.on{display:flex}
+#privacyOvl .mascot{width:120px}
+</style>
+</head>
+<body>
+<div class="grain"></div>
+
+<!-- ============ SVG ICON SPRITE (inline, works fully offline) ============ -->
+<svg style="display:none" xmlns="http://www.w3.org/2000/svg">
+<symbol id="i-wallet" viewBox="0 0 24 24"><path d="M21 12V7H5a2 2 0 0 1 0-4h14v4"/><path d="M3 5v14a2 2 0 0 0 2 2h16v-5"/><path d="M18 12a2 2 0 0 0 0 4h4v-4Z"/></symbol>
+<symbol id="i-scan" viewBox="0 0 24 24"><path d="M3 7V5a2 2 0 0 1 2-2h2"/><path d="M17 3h2a2 2 0 0 1 2 2v2"/><path d="M21 17v2a2 2 0 0 1-2 2h-2"/><path d="M7 21H5a2 2 0 0 1-2-2v-2"/><line x1="7" y1="12" x2="17" y2="12"/></symbol>
+<symbol id="i-cc" viewBox="0 0 24 24"><rect x="2" y="5" width="20" height="14" rx="2"/><line x1="2" y1="10" x2="22" y2="10"/></symbol>
+<symbol id="i-id" viewBox="0 0 24 24"><rect x="3" y="4" width="18" height="16" rx="2"/><circle cx="9" cy="10" r="2"/><path d="M15 8h4M15 12h4M5.5 18.5c.8-2 2-3 3.5-3s2.7 1 3.5 3"/></symbol>
+<symbol id="i-grad" viewBox="0 0 24 24"><path d="M22 10 12 5 2 10l10 5 10-5Z"/><path d="M6 12v5c0 1.7 2.7 3 6 3s6-1.3 6-3v-5"/></symbol>
+<symbol id="i-bus" viewBox="0 0 24 24"><rect x="4" y="3" width="16" height="13" rx="2"/><path d="M4 10h16"/><circle cx="8" cy="19" r="1.6"/><circle cx="16" cy="19" r="1.6"/><path d="M6 16v1.5M18 16v1.5"/></symbol>
+<symbol id="i-tag" viewBox="0 0 24 24"><path d="M12 2H2v10l9.3 9.3a1.7 1.7 0 0 0 2.4 0l7.6-7.6a1.7 1.7 0 0 0 0-2.4L12 2Z"/><circle cx="7" cy="7" r="1.5"/></symbol>
+<symbol id="i-gear" viewBox="0 0 24 24"><circle cx="12" cy="12" r="3.5"/><path d="M12 2v3M12 19v3M2 12h3M19 12h3M4.9 4.9 7 7M17 17l2.1 2.1M19.1 4.9 17 7M7 17l-2.1 2.1"/></symbol>
+<symbol id="i-lock" viewBox="0 0 24 24"><rect x="4" y="11" width="16" height="10" rx="2"/><path d="M8 11V7a4 4 0 0 1 8 0v4"/></symbol>
+<symbol id="i-unlock" viewBox="0 0 24 24"><rect x="4" y="11" width="16" height="10" rx="2"/><path d="M8 11V7a4 4 0 0 1 7.7-1.5"/></symbol>
+<symbol id="i-plus" viewBox="0 0 24 24"><path d="M12 5v14M5 12h14"/></symbol>
+<symbol id="i-x" viewBox="0 0 24 24"><path d="M6 6l12 12M18 6 6 18"/></symbol>
+<symbol id="i-check" viewBox="0 0 24 24"><path d="m4 12 5 5L20 7"/></symbol>
+<symbol id="i-eye" viewBox="0 0 24 24"><path d="M2 12s3.5-7 10-7 10 7 10 7-3.5 7-10 7S2 12 2 12Z"/><circle cx="12" cy="12" r="3"/></symbol>
+<symbol id="i-eyeoff" viewBox="0 0 24 24"><path d="M2 12s3.5-7 10-7c2 0 3.8.7 5.3 1.6M22 12s-3.5 7-10 7c-2 0-3.8-.7-5.3-1.6"/><path d="M4 4l16 16"/></symbol>
+<symbol id="i-star" viewBox="0 0 24 24"><path d="m12 3 2.7 5.8 6.3.7-4.7 4.3 1.3 6.2L12 16.9 6.4 20l1.3-6.2L3 9.5l6.3-.7L12 3Z"/></symbol>
+<symbol id="i-trash" viewBox="0 0 24 24"><path d="M4 7h16"/><path d="M9 7V5a1 1 0 0 1 1-1h4a1 1 0 0 1 1 1v2"/><path d="M6 7l1 13a1 1 0 0 0 1 1h8a1 1 0 0 0 1-1l1-13"/></symbol>
+<symbol id="i-pencil" viewBox="0 0 24 24"><path d="M17 3l4 4L8 20l-5 1 1-5L17 3Z"/></symbol>
+<symbol id="i-copy" viewBox="0 0 24 24"><rect x="9" y="9" width="12" height="12" rx="2"/><path d="M5 15V5a2 2 0 0 1 2-2h10"/></symbol>
+<symbol id="i-cam" viewBox="0 0 24 24"><path d="M4 8h3l2-3h6l2 3h3a1 1 0 0 1 1 1v10a1 1 0 0 1-1 1H4a1 1 0 0 1-1-1V9a1 1 0 0 1 1-1Z"/><circle cx="12" cy="13" r="3.5"/></symbol>
+<symbol id="i-img" viewBox="0 0 24 24"><rect x="3" y="4" width="18" height="16" rx="2"/><circle cx="9" cy="10" r="2"/><path d="m5 19 5-5 3 3 3-3 3 3"/></symbol>
+<symbol id="i-chl" viewBox="0 0 24 24"><path d="m15 18-6-6 6-6"/></symbol>
+<symbol id="i-chr" viewBox="0 0 24 24"><path d="m9 18 6-6-6-6"/></symbol>
+<symbol id="i-arrowl" viewBox="0 0 24 24"><path d="M19 12H5"/><path d="m12 19-7-7 7-7"/></symbol>
+<symbol id="i-down" viewBox="0 0 24 24"><path d="M12 3v12"/><path d="m7 10 5 5 5-5"/><path d="M4 21h16"/></symbol>
+<symbol id="i-up" viewBox="0 0 24 24"><path d="M12 15V3"/><path d="m7 8 5-5 5 5"/><path d="M4 21h16"/></symbol>
+<symbol id="i-shield" viewBox="0 0 24 24"><path d="M12 22s8-3 8-10V5l-8-3-8 3v7c0 7 8 10 8 10Z"/><path d="m9 12 2 2 4-4"/></symbol>
+<symbol id="i-spark" viewBox="0 0 24 24"><path d="M12 3l1.9 5.1L19 10l-5.1 1.9L12 17l-1.9-5.1L5 10l5.1-1.9L12 3Z"/><path d="m19 15 .9 2.1L22 18l-2.1.9L19 21l-.9-2.1L16 18l2.1-.9L19 15Z"/></symbol>
+<symbol id="i-phone" viewBox="0 0 24 24"><rect x="7" y="2" width="10" height="20" rx="2"/><line x1="11" y1="18" x2="13" y2="18"/></symbol>
+<symbol id="i-wifioff" viewBox="0 0 24 24"><path d="m2 2 20 20"/><path d="M8.5 16.5a5 5 0 0 1 7 0"/><path d="M5 12.5a10 10 0 0 1 3-2"/><path d="M16 10.5c1 .5 2 1.2 3 2"/><path d="M12 20h.01"/></symbol>
+<symbol id="i-clock" viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 2"/></symbol>
+<symbol id="i-coffee" viewBox="0 0 24 24"><path d="M17 8h1a3 3 0 0 1 0 6h-1"/><path d="M4 8h13v6a4 4 0 0 1-4 4H8a4 4 0 0 1-4-4Z"/><path d="M8 3v2M12 3v2"/></symbol>
+<symbol id="i-flip" viewBox="0 0 24 24"><path d="M3 12a9 9 0 0 1 15.5-6.2L21 8"/><path d="M21 3v5h-5"/><path d="M21 12a9 9 0 0 1-15.5 6.2L3 16"/><path d="M3 21v-5h5"/></symbol>
+<symbol id="i-pile" viewBox="0 0 24 24"><rect x="4" y="3" width="14" height="10" rx="2"/><path d="M6 13v3a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2V8"/></symbol>
+<symbol id="i-list" viewBox="0 0 24 24"><line x1="4" y1="6" x2="20" y2="6"/><line x1="4" y1="12" x2="20" y2="12"/><line x1="4" y1="18" x2="20" y2="18"/></symbol>
+<symbol id="i-heart" viewBox="0 0 24 24"><path d="M12 21C7 16.6 3 13.3 3 9.5 3 7 5 5 7.5 5c1.7 0 3.2.9 4.5 2.6C13.3 5.9 14.8 5 16.5 5 19 5 21 7 21 9.5c0 3.8-4 7.1-9 11.5Z"/></symbol>
+<symbol id="i-bell" viewBox="0 0 24 24"><path d="M6 8a6 6 0 0 1 12 0c0 7 3 8 3 8H3s3-1 3-8"/><path d="M10.3 21a1.9 1.9 0 0 0 3.4 0"/></symbol>
+<symbol id="i-waves" viewBox="0 0 24 24"><path d="M5.5 9a9.5 9.5 0 0 1 0 6"/><path d="M9 7a13 13 0 0 1 0 10"/><path d="M12.5 5a17 17 0 0 1 0 14"/></symbol>
+<symbol id="i-key" viewBox="0 0 24 24"><circle cx="7.5" cy="15.5" r="4"/><path d="m10.5 12.5 8-8"/><path d="m14.5 5.5 3 3"/></symbol>
+<symbol id="i-user" viewBox="0 0 24 24"><circle cx="12" cy="8" r="4"/><path d="M4 21c1.5-3.5 4.5-5 8-5s6.5 1.5 8 5"/></symbol>
+</svg>
+
+<!-- ============ MASCOT TEMPLATE ============ -->
+<template id="tplMascot">
+<svg class="mascot" viewBox="0 0 200 190" data-mood="wake" aria-hidden="true">
+  <g class="m-z"><text x="146" y="40" font-size="24" class="zz">z</text><text x="166" y="22" font-size="17" class="zz z2">z</text></g>
+  <circle cx="52" cy="44" r="17" class="m-body2"/><circle cx="148" cy="44" r="17" class="m-body2"/>
+  <rect x="82" y="12" width="54" height="46" rx="8" class="m-card"/>
+  <rect x="30" y="40" width="140" height="118" rx="34" class="m-body"/>
+  <path d="M42 100h116" class="m-stitch"/>
+  <path class="m-heart" d="M100 148c-7-5.6-11-9.3-11-13.6 0-3 2.3-5.4 5.3-5.4 2.2 0 4.3 1.3 5.7 3.4 1.4-2.1 3.5-3.4 5.7-3.4 3 0 5.3 2.4 5.3 5.4 0 4.3-4 8-11 13.6Z"/>
+  <ellipse cx="60" cy="92" rx="8" ry="5" class="m-blush"/><ellipse cx="140" cy="92" rx="8" ry="5" class="m-blush"/>
+  <g class="m-eye o"><circle cx="76" cy="76" r="7.5"/><circle cx="124" cy="76" r="7.5"/><circle cx="78.5" cy="73.5" r="2.4" class="m-shine"/><circle cx="126.5" cy="73.5" r="2.4" class="m-shine"/></g>
+  <g class="m-eye c"><path d="M68 78q8 8 16 0"/><path d="M116 78q8 8 16 0"/></g>
+  <g class="m-eye h"><path d="M68 80q8-11 16 0"/><path d="M116 80q8-11 16 0"/></g>
+  <g class="m-eye d"><path d="M70 70l12 12M82 70l-12 12M118 70l12 12M130 70l-12 12"/></g>
+  <path class="m-mouth s" d="M92 90q8 8 16 0"/>
+  <path class="m-mouth o" d="M90 88q10 17 20 0z"/>
+</svg>
+</template>
+
+<!-- ============ APP SHELL ============ -->
+<div id="app">
+  <header class="top">
+    <div class="greet">
+      <div class="hi" id="greetHi">GOOD EVENING</div>
+      <h1 id="greetMain">Your cozy <em>nook</em></h1>
+    </div>
+    <div class="topright">
+      <div class="mini-mascot" id="hdrMascot"></div>
+      <button class="iconbtn" id="btnLockTop" title="Lock now"><svg class="ic"><use href="#i-lock"/></svg></button>
+    </div>
+  </header>
+
+  <main>
+    <!-- WALLET -->
+    <section class="view on" id="view-wallet">
+      <div class="searchrow">
+        <div class="search"><svg class="ic" style="width:18px;height:18px;color:var(--ink2)"><use href="#i-scan"/></svg>
+          <input id="search" placeholder="Search your cards..." autocomplete="off"></div>
+        <button class="iconbtn" id="btnSpread" title="Toggle deck / list"><svg class="ic"><use href="#i-list"/></svg></button>
+      </div>
+      <div class="chips" id="chips"></div>
+      <div class="deckbar"><span class="count" id="deckCount"></span></div>
+      <div class="deck" id="deck"></div>
+      <div class="empty hide" id="deckEmpty"></div>
+      <div class="deck-hint" id="deckHint">Tap any card to open it</div>
+    </section>
+
+    <!-- SCAN / ADD -->
+    <section class="view" id="view-scan">
+      <div class="viewhead"><h2>Add a card</h2><p>Snap it, name it, tuck it in. Pip does the rest.</p></div>
+      <div class="typegrid" id="typeGrid"></div>
+    </section>
+
+    <!-- PAY -->
+    <section class="view" id="view-pay">
+      <div class="viewhead"><h2>Pay</h2><p>When something asks for a card, Pip steps up. Passcode only, never the CVV.</p></div>
+      <div class="merchant-demo stk">
+        <div class="merchant-top">
+          <div class="mavatar"><svg class="ic"><use href="#i-coffee"/></svg></div>
+          <div><b>Bean There Caf&eacute;</b><span>Table 4 &middot; incoming card request</span></div>
+        </div>
+        <div class="payamount">$4.50</div>
+        <button class="btn dark" id="btnDemoPay"><svg class="ic"><use href="#i-bell"/></svg>Simulate a merchant request</button>
+      </div>
+      <div class="histhead"><svg class="ic" style="width:16px;height:16px"><use href="#i-clock"/></svg>Recent activity</div>
+      <div id="payHistory"></div>
+      <div class="histhead"><svg class="ic" style="width:16px;height:16px"><use href="#i-spark"/></svg>For developers</div>
+      <div class="codebox" id="connCode">await window.CardNook.requestPayment({
+  merchant: 'Bean There Cafe',
+  amount:   '$4.50',
+  note:     'Table 4'
+});
+// ask for the passcode once, get card details back</div>
+      <div style="padding:10px 20px 0"><button class="btn small" id="btnCopyCode"><svg class="ic" style="width:16px;height:16px"><use href="#i-copy"/></svg>Copy snippet</button></div>
+    </section>
+
+    <!-- SETTINGS -->
+    <section class="view" id="view-settings">
+      <div class="viewhead"><h2>Settings</h2><p>Everything lives on this device. Nothing phones home.</p></div>
+
+      <div class="setgroup"><h4>Security</h4>
+        <button class="setrow" id="btnChangePin"><svg class="ic"><use href="#i-key"/></svg><div class="t"><b>Change passcode</b><span>Re-wraps your vault key</span></div></button>
+        <div class="setrow" style="cursor:default"><svg class="ic"><use href="#i-clock"/></svg><div class="t"><b>Auto-lock</b><span>Locks when you wander off</span></div>
+          <select id="setAutolock"><option value="30">30 s</option><option value="60">1 min</option><option value="180">3 min</option><option value="300">5 min</option><option value="0">Never</option></select></div>
+        <button class="setrow" id="btnLockNow"><svg class="ic"><use href="#i-lock"/></svg><div class="t"><b>Lock now</b><span>Sends Pip straight to sleep</span></div></button>
+      </div>
+
+      <div class="setgroup"><h4>App</h4>
+        <button class="setrow" id="btnInstall"><svg class="ic"><use href="#i-phone"/></svg><div class="t"><b>Install to home screen</b><span id="installSub">Runs like a real app, works offline</span></div></button>
+        <button class="setrow" id="btnSw"><svg class="ic"><use href="#i-wifioff"/></svg><div class="t"><b>Offline pack</b><span id="swSub">Check status</span></div><span class="nettag no" id="swTag">SETUP</span></button>
+        <div class="setrow" style="cursor:default"><svg class="ic"><use href="#i-user"/></svg><div class="t"><b>Your name</b><span>For the greeting upstairs</span></div>
+          <input id="setName" style="width:120px;border:2px solid var(--ink);border-radius:10px;padding:7px 10px;font-weight:800" placeholder="Alex"></div>
+      </div>
+
+      <div class="setgroup"><h4>Your data</h4>
+        <button class="setrow" id="btnExport"><svg class="ic"><use href="#i-down"/></svg><div class="t"><b>Encrypted backup</b><span>One file, sealed with your passcode</span></div></button>
+        <button class="setrow" id="btnImport"><svg class="ic"><use href="#i-up"/></svg><div class="t"><b>Restore from backup</b><span>Move in from another device</span></div></button>
+        <button class="setrow danger" id="btnWipe"><svg class="ic"><use href="#i-trash"/></svg><div class="t"><b>Erase everything</b><span>Shred the vault on this device</span></div></button>
+      </div>
+
+      <div style="text-align:center;padding:6px 30px 20px;color:var(--ink2);font-weight:700;font-size:13px">
+        <div class="mini-mascot" style="margin:0 auto 8px;width:64px;height:64px" id="footMascot"></div>
+        Card Nook v1.0 &middot; cards never leave this device.<br>Cloud sync can come later, on your terms.
+      </div>
+    </section>
+  </main>
+
+  <nav class="tabs">
+    <button class="navbtn on" data-view="wallet"><svg class="ic"><use href="#i-wallet"/></svg>Wallet<i class="dot"></i></button>
+    <button class="navbtn" data-view="pay"><svg class="ic"><use href="#i-waves"/></svg>Pay<i class="dot"></i></button>
+    <button class="scanfab" id="btnScanCenter" title="Add a card"><svg class="ic"><use href="#i-plus"/></svg></button>
+    <button class="navbtn" data-view="scan" style="visibility:hidden"><svg class="ic"><use href="#i-scan"/></svg>Add<i class="dot"></i></button>
+    <button class="navbtn" data-view="settings"><svg class="ic"><use href="#i-gear"/></svg>Settings<i class="dot"></i></button>
+  </nav>
+</div>
+
+<!-- overlays -->
+<div class="ovl" id="ovlWizard"></div>
+<div class="sheetroot" id="sheetRoot"></div>
+<div class="pinroot" id="pinRoot"></div>
+<div class="modalroot" id="modalRoot"></div>
+<div class="lightbox" id="lightbox"><button class="iconbtn" id="lbClose"><svg class="ic"><use href="#i-x"/></svg></button><img id="lbImg" alt="Card snapshot"></div>
+<div class="fullvl" id="ovlLock"></div>
+<div class="fullvl" id="ovlOnboard"></div>
+<div id="privacyOvl"><div id="privMascot"></div>Pip is guarding the nook...</div>
+<div id="toasts"></div>
+<input type="file" id="fileImport" accept="application/json" class="hide">
+<input type="file" id="fileImg" accept="image/*" class="hide">
+
+<script>
+'use strict';
+/* ================================================================
+   CARD NOOK — a local-first, PIN-gated card vault.
+   Everything below runs on-device: WebCrypto (PBKDF2 + AES-GCM),
+   localStorage for the sealed vault, zero network calls.
+================================================================ */
+const $=s=>document.querySelector(s), $$=s=>[...document.querySelectorAll(s)];
+const esc=s=>String(s??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+const icon=(n,st='')=>`<svg class="ic" style="${st}"><use href="#i-${n}"/></svg>`;
+const haptic=ms=>{try{navigator.vibrate&&navigator.vibrate(ms)}catch(e){}};
+const uid=()=>Date.now().toString(36)+Math.random().toString(36).slice(2,8);
+const sleep=ms=>new Promise(r=>setTimeout(r,ms));
+
+/* ---------- toast ---------- */
+function toast(msg,icn='spark'){
+  const t=document.createElement('div');t.className='toast';
+  t.innerHTML=icon(icn)+`<span>${esc(msg)}</span>`;
+  $('#toasts').appendChild(t);
+  setTimeout(()=>{t.classList.add('bye');setTimeout(()=>t.remove(),350)},2600);
+}
+
+/* ---------- generic confirm modal ---------- */
+function ask({title,body,ok='Yes',danger=false}){
+  return new Promise(res=>{
+    const r=$('#modalRoot');
+    r.innerHTML=`<div class="scrim"></div><div class="modal">
+      <div class="mico" style="background:${danger?'#FFD9CB':'#FFE9CF'}">${icon(danger?'trash':'shield')}</div>
+      <h3>${esc(title)}</h3><p>${esc(body)}</p>
+      <div class="btnrow"><button class="btn" data-n>No</button><button class="btn ${danger?'primary':'dark'}" data-y>${esc(ok)}</button></div></div>`;
+    r.classList.add('on');
+    const done=v=>{r.classList.remove('on');r.innerHTML='';res(v)};
+    r.querySelector('[data-n]').onclick=()=>done(false);
+    r.querySelector('[data-y]').onclick=()=>done(true);
+    r.querySelector('.scrim').onclick=()=>done(false);
+  });
+}
+
+/* ---------- mascot helper ---------- */
+function mountMascot(el,mood='wake'){
+  el.innerHTML='';el.appendChild($('#tplMascot').content.firstElementChild.cloneNode(true));
+  if(mood)el.firstElementChild.dataset.mood=mood;
+}
+function setMood(root,mood){root.querySelectorAll('.mascot').forEach(m=>m.dataset.mood=mood)}
+
+/* ---------- confetti burst ---------- */
+function burst(x,y){
+  const cols=['#F4562A','#FFC98F','#2E9E78','#26201A','#F6C1C7'];
+  for(let i=0;i<12;i++){
+    const b=document.createElement('i');b.className='burst-bit';
+    const a=Math.random()*Math.PI*2,d=60+Math.random()*90;
+    b.style.left=x+'px';b.style.top=y+'px';b.style.background=cols[i%cols.length];
+    if(Math.random()<.4)b.style.borderRadius='50%';
+    b.style.setProperty('--bx',Math.cos(a)*d+'px');b.style.setProperty('--by',Math.sin(a)*d-30+'px');
+    b.style.setProperty('--br',(Math.random()*360)+'px');
+    document.body.appendChild(b);setTimeout(()=>b.remove(),850);
+  }
+}
+
+/* ================================================================
+   CRYPTO VAULT
+================================================================ */
+const te=s=>new TextEncoder().encode(s), td=b=>new TextDecoder().decode(b);
+function b64(buf){const u=new Uint8Array(buf);let s='';for(let i=0;i<u.length;i+=0x8000)s+=String.fromCharCode.apply(null,u.subarray(i,i+0x8000));return btoa(s)}
+const ub64=s=>Uint8Array.from(atob(s),c=>c.charCodeAt(0));
+const subtle=window.crypto&&window.crypto.subtle;
+function needCrypto(){ if(!subtle){toast('Secure context needed: open over HTTPS or from a file','shield');return false} return true }
+
+async function deriveKey(pin,salt){
+  const base=await subtle.importKey('raw',te(pin),'PBKDF2',false,['deriveKey']);
+  return subtle.deriveKey({name:'PBKDF2',salt,iterations:150000,hash:'SHA-256'},base,{name:'AES-GCM',length:256},false,['encrypt','decrypt']);
+}
+async function importVaultKey(raw){return subtle.importKey('raw',raw,{name:'AES-GCM'},false,['encrypt','decrypt'])}
+async function encJson(key,obj){const iv=crypto.getRandomValues(new Uint8Array(12));
+  const ct=await subtle.encrypt({name:'AES-GCM',iv},key,te(JSON.stringify(obj)));
+  return {iv:b64(iv),ct:b64(ct)}}
+async function decJson(key,box){const pt=await subtle.decrypt({name:'AES-GCM',iv:ub64(box.iv)},key,ub64(box.ct));
+  return td(pt)}
+
+let V=null; /* the sealed vault record persisted to localStorage */
+const S={key:null,raw:null,pin:null,cards:[],pays:[],settings:{name:'',autolock:60},q:'',chip:'all',deckMode:true};
+
+function loadVault(){try{V=JSON.parse(localStorage.getItem('cn.vault'))}catch(e){V=null}}
+function saveVault(){localStorage.setItem('cn.vault',JSON.stringify(V))}
+function loadSettings(){try{Object.assign(S.settings,JSON.parse(localStorage.getItem('cn.settings')||'{}'))}catch(e){}}
+function saveSettings(){localStorage.setItem('cn.settings',JSON.stringify(S.settings))}
+
+async function createVault(pin){
+  const salt=crypto.getRandomValues(new Uint8Array(16));
+  const raw=crypto.getRandomValues(new Uint8Array(32));
+  const pinKey=await deriveKey(pin,salt), key=await importVaultKey(raw);
+  V={v:1,plen:pin.length,salt:b64(salt),wrap:await encJson(pinKey,raw),check:await encJson(key,'nook'),
+     data:await encJson(key,{cards:[],pays:[]})};
+  saveVault(); S.key=key; S.raw=raw; S.pin=pin; S.cards=[]; S.pays=[];
+}
+async function unlockVault(pin){
+  const pinKey=await deriveKey(pin,ub64(V.salt));
+  const raw=ub64(await decJson(pinKey,V.wrap));        // wrong pin throws here
+  const key=await importVaultKey(raw);
+  if(await decJson(key,V.check)!=='nook') throw new Error('bad');
+  const d=await decJson(key,V.data);
+  S.key=key;S.raw=raw;S.pin=pin;S.cards=d.cards||[];S.pays=d.pays||[];
+}
+async function persistVault(){ if(!S.key)return; V.data=await encJson(S.key,{cards:S.cards,pays:S.pays}); saveVault(); }
+async function changePinFlow(newPin){
+  const salt=crypto.getRandomValues(new Uint8Array(16));
+  const pinKey=await deriveKey(newPin,salt);
+  V.salt=b64(salt); V.plen=newPin.length; V.wrap=await encJson(pinKey,S.raw); S.pin=newPin; saveVault();
+}
+
+/* ---------- card helpers ---------- */
+const TYPES={
+  bank:{label:'Bank card',icon:'cc',desc:'Debit & credit cards',num:'Card number',org:'Bank name',cvv:true,exp:true,expReq:true},
+  id:{label:'ID card',icon:'id',desc:'National / state ID',num:'ID number',org:'Issuing authority',cvv:false,exp:true,expReq:false},
+  student:{label:'Student ID',icon:'grad',desc:'School & university',num:'Student number',org:'School / university',cvv:false,exp:true,expReq:false},
+  transit:{label:'Transit card',icon:'bus',desc:'Metro, bus, rail',num:'Card number (optional)',org:'Transit agency',cvv:false,exp:false,expReq:false},
+  loyalty:{label:'Loyalty card',icon:'tag',desc:'Cafes, stores, points',num:'Member number',org:'Store / brand',cvv:false,exp:false,expReq:false},
+};
+const COLORWAYS=[
+  {id:'peach', name:'Peach', bg:'#FFB68C',ink:'#3A2318',dark:false},
+  {id:'mint',  name:'Mint',  bg:'#B9E6D3',ink:'#14332A',dark:false},
+  {id:'butter',name:'Butter',bg:'#FFD66B',ink:'#3A2E10',dark:false},
+  {id:'rose',  name:'Rose',  bg:'#F6C1C7',ink:'#3C1D22',dark:false},
+  {id:'sky',   name:'Drift', bg:'#BFD7E4',ink:'#1C2E38',dark:false},
+  {id:'cocoa', name:'Cocoa', bg:'#D8B08C',ink:'#2C1B10',dark:false},
+  {id:'ink',   name:'Ink',   bg:'#2E2823',ink:'#F6EDDC',dark:true},
+  {id:'sage',  name:'Sage',  bg:'#C9D6A3',ink:'#26310F',dark:false},
+];
+const PATTERNS={
+  dots:c=>`<svg xmlns='http://www.w3.org/2000/svg' width='26' height='26'><g fill='${c}'><circle cx='5' cy='5' r='2.4'/><circle cx='18' cy='18' r='2.4'/></g></svg>`,
+  waves:c=>`<svg xmlns='http://www.w3.org/2000/svg' width='28' height='14'><path d='M0 10 Q7 2 14 10 T28 10' fill='none' stroke='${c}' stroke-width='2.4' stroke-linecap='round'/></svg>`,
+  stripes:c=>`<svg xmlns='http://www.w3.org/2000/svg' width='14' height='14'><path d='M-2 6L6 -2M0 14L14 0M8 16L16 8' stroke='${c}' stroke-width='2.6'/></svg>`,
+  hearts:c=>`<svg xmlns='http://www.w3.org/2000/svg' width='24' height='24'><path d='M12 19c-4-3.4-7-5.9-7-9a3.6 3.6 0 0 1 7-1.2A3.6 3.6 0 0 1 19 10c0 3.1-3 5.6-7 9Z' fill='${c}'/></svg>`,
+  grid:c=>`<svg xmlns='http://www.w3.org/2000/svg' width='22' height='22'><path d='M0 6h22M0 16h22M6 0v22M16 0v22' stroke='${c}' stroke-width='1.6'/></svg>`,
+};
+function patURL(type,cw){const col=PATTERNS[type]?cw.ink:cw.ink;
+  return `url("data:image/svg+xml,${encodeURIComponent(PATTERNS[type](col))}")`}
+function colorwayOf(id){return COLORWAYS.find(c=>c.id===id)||COLORWAYS[0]}
+function luhn(s){let sum=0,alt=false;for(let i=s.length-1;i>=0;i--){let d=+s[i];if(alt){d*=2;if(d>9)d-=9}sum+=d;alt=!alt}return sum%10===0}
+function brandOf(n){if(/^4/.test(n))return'Visa';if(/^(5[1-5]|2[2-7])/.test(n))return'Mastercard';if(/^3[47]/.test(n))return'Amex';if(/^(6011|65|64[4-9])/.test(n))return'Discover';return'Card'}
+function fmtNum(raw){const n=raw.replace(/\D/g,'').slice(0,19);
+  if(/^3[47]/.test(n))return n.replace(/^(\d{4})(\d{0,6})(\d{0,5}).*/,(m,a,b,c)=>[a,b,c].filter(Boolean).join(' '));
+  return n.replace(/(\d{4})(?=\d)/g,'$1 ')}
+function maskNum(num){const d=num.replace(/\D/g,'');return d?`\u2022\u2022\u2022\u2022 ${d.slice(-4)}`:'—'}
+function timeAgo(t){const s=(Date.now()-t)/1000;if(s<60)return'just now';if(s<3600)return Math.floor(s/60)+' min ago';
+  if(s<86400)return Math.floor(s/3600)+' h ago';return new Date(t).toLocaleDateString()}
+
+/* ---------- card face builder (3D) ---------- */
+function cardHTML(c,{interactive=true,flip=false}={}){
+  const cw=colorwayOf(c.colorway), t=TYPES[c.type];
+  const pat=patURL(c.pattern||'dots',cw);
+  const num=c.num?fmtNum(c.num):'\u2022\u2022\u2022\u2022 \u2022\u2022\u2022\u2022 \u2022\u2022\u2022\u2022 \u2022\u2022\u2022\u2022';
+  const badge=`<span class="cbadge">${icon(t.icon)}</span>${brandOf(c.num||'')!=='Card'||c.type!=='bank'?esc(c.type==='bank'?brandOf(c.num||''):t.label):esc(t.label)}`;
+  const back=c.bimg
+    ?`<div class="cface back"><img class="bimg" src="${c.bimg}" alt="card back"><div class="cglare"></div></div>`
+    :`<div class="cface back">
+        <div class="magstripe"></div>
+        <div class="sigrow"><div class="sig">${esc(c.holder||c.name)}</div>
+          <div class="cvvbox">\u2022\u2022\u2022</div></div>
+        <div class="smallprint">This card lives in ${esc(S.settings.name||'a cozy nook')}'s Card Nook. If found, it never left home.</div>
+        <div class="cglare"></div></div>`;
+  return `<div class="card3d ${cw.dark?'darkcard':''}" ${interactive?'data-tilt':''} style="--flip:${flip?'180deg':'0deg'}">
+    <div class="c3d-in ${flip?'spin':''}">
+      <div class="cface front" style="--cbg:${cw.bg};--cink:${cw.ink}">
+        <div class="cpat" style="background-image:${pat}"></div>
+        <div class="crow top"><span class="corg">${esc(c.org||c.name)}</span>${icon('waves')}</div>
+        <svg class="cchip" viewBox="0 0 44 34"><rect x="1.5" y="1.5" width="41" height="31" rx="7" fill="#F0C75E" stroke="rgba(0,0,0,.4)" stroke-width="2"/><path d="M14 1.5v9a4 4 0 0 1-4 4H1.5M30 1.5v9a4 4 0 0 0 4 4h8.5M14 32.5v-9a4 4 0 0 0-4-4H1.5M30 32.5v-9a4 4 0 0 1 4-4h8.5" fill="none" stroke="rgba(0,0,0,.4)" stroke-width="2"/></svg>
+        <div class="cnum">${esc(num)}</div>
+        <div class="crow bot">
+          <div style="min-width:0"><div class="clabel">CARD HOLDER</div><div class="cval">${esc((c.holder||c.name).toUpperCase())}</div></div>
+          ${c.exp?`<div><div class="clabel">VALID THRU</div><div class="cval">${esc(c.exp)}</div></div>`:''}
+          <span class="cbadge">${icon(t.icon)}${esc(c.type==='bank'?brandOf(c.num||''):t.label)}</span>
+        </div>
+        <div class="cglare"></div>
+      </div>
+      ${back}
+    </div></div>`;
+}
+
+/* ---------- tilt + flip binding ---------- */
+function bindCard(el){
+  const inner=el.querySelector('.c3d-in');
+  el.addEventListener('pointermove',e=>{
+    const r=el.getBoundingClientRect(),px=(e.clientX-r.left)/r.width,py=(e.clientY-r.top)/r.height;
+    inner.style.setProperty('--ry',((px-.5)*16)+'deg');
+    inner.style.setProperty('--rx',((.5-py)*11)+'deg');
+    inner.style.setProperty('--gx',(px*100)+'%');inner.style.setProperty('--gy',(py*100)+'%');
+    el.querySelector('.cglare')&&el.querySelectorAll('.cglare').forEach(g=>g.style.opacity=1);
+  });
+  el.addEventListener('pointerleave',()=>{
+    inner.style.setProperty('--ry','0deg');inner.style.setProperty('--rx','0deg');
+    el.querySelectorAll('.cglare').forEach(g=>g.style.opacity=0);
+  });
+}
+function flipCard(el){
+  const card=el.querySelector('.card3d'),inner=card.querySelector('.c3d-in');
+  const on=card.dataset.fl==='1';card.dataset.fl=on?'0':'1';
+  inner.classList.add('spin');
+  inner.style.setProperty('--flip',(on?0:180)+'deg');
+  setTimeout(()=>inner.classList.remove('spin'),720);haptic(8);
+}
+
+/* ================================================================
+   WALLET VIEW
+================================================================ */
+function currentList(){
+  let arr=[...S.cards];
+  if(S.chip!=='all')arr=arr.filter(c=>c.type===S.chip);
+  if(S.q){const q=S.q.toLowerCase();arr=arr.filter(c=>[c.name,c.org,c.holder,c.num].some(v=>(v||'').toLowerCase().includes(q))||('****'+(c.num||'').replace(/\D/g,'').slice(-4)).includes(q))}
+  arr.sort((a,b)=>(b.fav-a.fav)||((b.usedAt||b.createdAt)-(a.usedAt||a.createdAt)));
+  return arr;
+}
+function renderChips(){
+  const counts={all:S.cards.length};S.cards.forEach(c=>counts[c.type]=(counts[c.type]||0)+1);
+  const defs=[['all','All'],['bank','Bank'],['id','ID'],['student','Student'],['transit','Transit'],['loyalty','Loyalty']];
+  $('#chips').innerHTML=defs.filter(d=>counts[d[0]]).map(([k,l])=>
+    `<button class="chip ${S.chip===k?'on':''}" data-chip="${k}">${l}<span style="opacity:.6">${counts[k]}</span></button>`).join('');
+  $$('#chips .chip').forEach(ch=>ch.onclick=()=>{S.chip=ch.dataset.chip;renderWallet()});
+}
+function renderWallet(){
+  renderChips();
+  const deck=$('#deck'),list=currentList();
+  $('#deckCount').innerHTML=`${icon('wallet','width:15px;height:15px')} ${S.cards.length} card${S.cards.length===1?'':'s'} tucked in`;
+  const filtering=!!S.q||S.chip!=='all';
+  const mode=(S.deckMode&&!filtering)?'stacked':'spread';
+  deck.className='deck '+mode;
+  $('#deckHint').classList.toggle('hide',list.length===0);
+  $('#deckSpreadState').querySelector; // noop
+  $('#btnSpread').innerHTML=icon(mode==='stacked'?'list':'pile');
+
+  if(!list.length){
+    deck.innerHTML='';const e=$('#deckEmpty');e.classList.remove('hide');
+    e.innerHTML=`<div id="emptyMascot"></div><h2>${S.cards.length?'Nothing here':'No cards yet'}</h2>
+      <p>${S.cards.length?'No card matches that search.':'Pip is holding an empty wallet and pretending it is fine.'}</p>
+      <button class="btn primary" id="btnEmptyAdd">${icon('plus')}Add your first card</button>`;
+    mountMascot($('#emptyMascot'),S.cards.length?'wake':'sleep');
+    $('#btnEmptyAdd').onclick=()=>{go('scan')};
+    return;
+  }
+  $('#deckEmpty').classList.add('hide');
+  deck.innerHTML=list.map(c=>`<div class="cardw" data-id="${c.id}">${cardHTML(c)}</div>`).join('');
+  if(mode==='stacked'){
+    const w=deck.clientWidth,ch=w/1.586,peek=Math.min(72,w*.19);
+    deck.style.height=(ch+peek*(list.length-1))+'px';
+    $$('#deck .cardw').forEach((el,i)=>{el.style.zIndex=list.length-i;el.style.transform=`translateY(${i*peek}px) scale(${1-i*.012})`;el.style.transformOrigin='top center'});
+  }else{
+    deck.style.height='auto';
+    $$('#deck .cardw').forEach(el=>el.style.marginBottom='18px');
+  }
+  $$('#deck .cardw').forEach(el=>{
+    bindCard(el);
+    el.addEventListener('click',()=>openDetail(el.dataset.id));
+  });
+}
+
+/* ================================================================
+   BOTTOM SHEET (detail)
+================================================================ */
+function closeSheet(){const r=$('#sheetRoot');r.classList.remove('on');r.innerHTML=''}
+function sheet(html){
+  const r=$('#sheetRoot');
+  r.innerHTML=`<div class="scrim"></div><div class="sheet"><div class="handle"></div>${html}</div>`;
+  r.classList.add('on');
+  r.querySelector('.scrim').onclick=closeSheet;
+  return r.querySelector('.sheet');
+}
+function openDetail(id){
+  const c=S.cards.find(x=>x.id===id);if(!c)return;
+  const t=TYPES[c.type];
+  const sh=sheet(`
+    <h3>${esc(c.name)}</h3><div class="sub">${esc(t.label)}${c.org?' \u00b7 '+esc(c.org):''}</div>
+    <div class="dcard-wrap" id="dcardWrap">${cardHTML(c)}</div>
+    <div class="dcard-tools">
+      <button class="btn small" id="dFlip">${icon('flip')}Flip</button>
+      <button class="btn small" id="dFav">${icon('star')}${c.fav?'Unfavorite':'Favorite'}</button>
+    </div>
+    <div id="dRows"></div>
+    ${c.fimg||c.bimg?`<div class="photorow">${c.fimg?`<div class="snapthumb" data-ph="${c.fimg}"><img src="${c.fimg}"><em>FRONT SNAP</em></div>`:''}${c.bimg?`<div class="snapthumb" data-ph="${c.bimg}"><img src="${c.bimg}"><em>BACK SNAP</em></div>`:''}</div>`:''}
+    <div class="actsheet">
+      <button class="btn primary" id="dPay">${icon('waves')}Pay with this</button>
+      <button class="btn dark" id="dCopy">${icon('copy')}Copy details</button>
+      <button class="btn" id="dEdit">${icon('pencil')}Edit</button>
+      <button class="btn" id="dDel" style="color:var(--coral)">${icon('trash')}Remove</button>
+    </div>`);
+  const wrap=sh.querySelector('#dcardWrap');
+  bindCard(wrap);
+  wrap.addEventListener('click',()=>flipCard(wrap));
+  sh.querySelector('#dFlip').onclick=e=>{e.stopPropagation();flipCard(wrap)};
+  sh.querySelector('#dFav').onclick=e=>{e.stopPropagation();c.fav=!c.fav;persistVault();renderWallet();toast(c.fav?'Pinned to the front':'Unpinned','star');openDetail(id)};
+  sh.querySelector('#dPay').onclick=e=>{e.stopPropagation();openPaySheet(c)};
+  sh.querySelector('#dEdit').onclick=e=>{e.stopPropagation();closeSheet();openWizard(c)};
+  sh.querySelector('#dDel').onclick=async e=>{
+    e.stopPropagation();
+    await pinGate('Remove this card?','Enter your passcode to confirm');
+    S.cards=S.cards.filter(x=>x.id!==id);await persistVault();closeSheet();renderWallet();
+    toast('Card shredded. Pip salutes you.','trash');
+  };
+  $$('#sheetRoot .snapthumb').forEach(th=>th.onclick=()=>{ $('#lbImg').src=th.dataset.ph;$('#lightbox').classList.add('on') });
+
+  /* secured rows */
+  let revealTimers=[];
+  const rows=sh.querySelector('#dRows');
+  const row=(k,v,icn,secret,showFn)=>`
+    <div class="kv">${icon(icn)}<span class="k">${k}</span>
+      <span class="v ${secret?'secret':''}" data-sv>${secret?esc(v):esc(v)}</span>
+      ${secret?`<button class="act" data-reveal>${icon('eye','width:15px;height:15px')}<span data-rl>${showFn?'Show':'Show'}</span></button>`:''}</div>`;
+  rows.innerHTML=
+    row('NUMBER',c.num?fmtNum(c.num):'\u2014','cc',!!c.num,true)
+   +(c.exp?row('VALID THRU',c.exp,'clock',false):'')
+   +(t.cvv&&c.cvv?row('CVV','\u2022'.repeat(c.cvv.length),'shield',true):'')
+   +row('HOLDER',c.holder||'\u2014','user',false)
+   +(c.notes?row('NOTES',c.notes,'spark',false):'')
+   +row('ADDED',new Date(c.createdAt).toLocaleDateString(),'clock',false);
+  const masked={num:true,cvv:true};
+  const paint=()=>{
+    rows.querySelectorAll('.kv').forEach((kv,i)=>{});
+    const numEl=rows.querySelector('[data-sv]');
+    if(numEl)numEl.textContent=masked.num?maskNum(c.num):fmtNum(c.num||'');
+    const cvvEl=rows.querySelectorAll('[data-sv]')[1]; // careful order
+  };
+  /* simpler: re-render rows on toggle */
+  const renderRows=()=>{
+    rows.innerHTML=
+      row('NUMBER',masked.num?maskNum(c.num):fmtNum(c.num||''),'cc',true)
+     +(c.exp?row('VALID THRU',c.exp,'clock',false):'')
+     +(t.cvv&&c.cvv?row('CVV',masked.cvv?'\u2022'.repeat(c.cvv.length):c.cvv,'shield',true):'')
+     +row('HOLDER',c.holder||'\u2014','user',false)
+     +(c.notes?row('NOTES',c.notes,'spark',false):'')
+     +row('ADDED',new Date(c.createdAt).toLocaleDateString(),'clock',false);
+    rows.querySelectorAll('[data-reveal]').forEach(btn=>btn.onclick=async()=>{
+      const label=btn.closest('.kv').querySelector('.k').textContent;
+      const isCvv=label==='CVV';
+      const pin=await pinGate(isCvv?'Reveal CVV':'Reveal full number','One passcode, coming right up');
+      if(pin===null)return;
+      if(isCvv)masked.cvv=false;else masked.num=false;
+      renderRows();haptic(10);
+      clearTimeout(...revealTimers);
+      revealTimers.push(setTimeout(()=>{if(document.body.contains(rows)){masked.num=true;masked.cvv=true;renderRows()}},20000));
+      toast('Auto-hides in 20 seconds','shield');
+    });
+  };
+  renderRows();
+}
+ $('#lbClose').onclick=()=>$('#lightbox').classList.remove('on');
+ $('#lightbox').onclick=e=>{if(e.target.id==='lightbox')$('#lightbox').classList.remove('on')};
+
+/* ================================================================
+   PIN GATE / PIN PAD
+================================================================ */
+function pinOverlay({title,sub='}',mode='type',fixedLen=4}={}){
+  return new Promise(res=>{
+    const r=$('#pinRoot');
+    r.innerHTML=`<div class="scrim"></div><div class="pincard">
+      <div id="pinMascot"></div>
+      <h3>${esc(title)}</h3><div class="psub">${esc(sub)}</div>
+      <div class="pin-dots" id="pinDots"></div>
+      <div class="pin-grid" id="pinGrid"></div>
+      <div class="pin-no hide" id="pinNo"></div>
+      <button class="btn small" id="pinCancel" style="margin-top:12px">Cancel</button></div>`;
+    r.classList.add('on');
+    mountMascot(r.querySelector('#pinMascot'),'wake');
+    let buf=[];
+    const dots=r.querySelector('#pinDots'),grid=r.querySelector('#pinGrid'),psub=r.querySelector('.psub'),pno=r.querySelector('#pinNo');
+    const maxLen=mode==='create'?8:fixedLen;
+    const keys=[1,2,3,4,5,6,7,8,9,'',0,'back'];
+    grid.innerHTML=keys.map(k=>k===''?'<button class="pkey ghost" tabindex="-1"></button>':
+      `<button class="pkey ${k==='back'?'back':''}" data-k="${k}">${k==='back'?icon('chr'):k}</button>`).join('');
+    const paintDots=()=>{dots.innerHTML=Array.from({length:Math.max(mode==='create'?4:fixedLen,buf.length)},(_,i)=>`<i class="${i<buf.length?'f':''}"></i>`).join('')};
+    paintDots();
+    let wrong=0,coolUntil=0,coolIv=null;
+    const lockout=()=>{
+      grid.querySelectorAll('.pkey').forEach(b=>b.disabled=true);
+      coolUntil=Date.now()+30000;
+      coolIv=setInterval(()=>{const s=Math.ceil((coolUntil-Date.now())/1000);
+        if(s<=0){clearInterval(coolIv);grid.querySelectorAll('.pkey').forEach(b=>b.disabled=false);psub.textContent=sub}
+        else psub.textContent=`Too many tries \u2014 wait ${s}s`;
+      },250);
+    };
+    async function submit(pin){
+      if(mode==='create'){res(pin);return}
+      try{ setMood(r,'happy');
+        if(mode==='verify'){await unlockVault(pin)} else {res(pin);return}
+        const done=res; setTimeout(()=>{r.classList.remove('on');r.innerHTML='';done(pin)},420);
+      }catch(e){ setMood(r,'dizzy');haptic([40,60,40]);wrong++;
+        pno.classList.remove('hide');pno.textContent='That is not it \u2014 Pip believes in you.';
+        r.querySelector('.pincard').classList.add('shake');
+        setTimeout(()=>r.querySelector('.pincard').classList.remove('shake'),450);
+        setTimeout(()=>setMood(r,'wake'),900);
+        buf=[];paintDots();
+        if(wrong>=5)lockout();
+      }
+    }
+    grid.querySelectorAll('.pkey').forEach(b=>b.onclick=()=>{
+      const k=b.dataset.k;haptic(6);
+      if(Date.now()<coolUntil)return;
+      if(k==='back')buf.pop();
+      else if(buf.length<maxLen)buf.push(k);
+      paintDots();
+      if(mode==='verify'&&buf.length===fixedLen)setTimeout(()=>submit(buf.join('')),140);
+      if(mode==='reauth'&&buf.length===fixedLen)setTimeout(()=>{const p=buf.join('');r.classList.remove('on');r.innerHTML='';res(p)},140);
+    });
+    r.querySelector('#pinCancel').onclick=()=>{clearInterval(coolIv);r.classList.remove('on');r.innerHTML='';res(null)};
+    r.querySelector('.scrim').onclick=()=>{clearInterval(coolIv);r.classList.remove('on');r.innerHTML='';res(null)};
+    if(mode==='create'){
+      const sb=document.createElement('button');sb.className='btn primary pinsubmit';sb.textContent='Continue';
+      sb.onclick=()=>{ if(buf.length<4){pno.classList.remove('hide');pno.textContent='At least 4 digits, please.';return} 
+        const p=buf.join('');r.classList.remove('on');r.innerHTML='';res(p)};
+      grid.after(sb);
+    }
+  });
+}
+/* two-phase create (pick + confirm) */
+async function createPinFlow(){
+  while(true){
+    const p1=await pinOverlay({title:'Pick a passcode',sub:'4 to 8 digits \u00b7 only you will know it',mode:'create'});
+    if(p1===null)return null;
+    const p2=await pinOverlay({title:'Once more',sub:'Confirm your passcode',mode:'create'});
+    if(p2===null)continue;
+    if(p1!==p2){toast('Those did not match. Again, with feeling.','lock');continue}
+    return p1;
+  }
+}
+/* gate a sensitive action; returns pin or null. Verify = re-check against real pin */
+async function pinGate(title,sub){
+  if(!S.pin)return null;
+  const pin=await pinOverlay({title,sub,mode:'reauth',fixedLen:S.pin.length});
+  if(pin===null)return null;
+  if(pin!==S.pin){toast('Wrong passcode','lock');return null}
+  return pin;
+}
+
+/* ================================================================
+   LOCK / UNLOCK / AUTOLOCK
+================================================================ */
+let lockTimer=null;
+function resetLockTimer(){
+  clearTimeout(lockTimer);
+  const sec=+S.settings.autolock;
+  if(sec>0&&S.key)lockTimer=setTimeout(lockApp,sec*1000);
+}
+function lockApp(){
+  if(!S.key&&!V)return;
+  S.key=null;S.raw=null;S.pin=null;S.cards=[];S.pays=[];
+  closeSheet();clearTimeout(lockTimer);
+  renderLock();
+}
+let pendingRequest=null;
+function renderLock(){
+  const o=$('#ovlLock');
+  o.innerHTML=`<div style="margin-bottom:-52px;position:relative;z-index:2" id="lockMascot"></div>
+    <div class="pincard" style="padding-top:64px">
+    <h2 style="font-family:'Fraunces',serif;font-size:24px">The nook is asleep</h2>
+    <p style="margin:4px 0 14px;color:var(--ink2);font-weight:700;font-size:14px">Your cards are sealed. Passcode, please.</p>
+    <div id="lockPad"></div></div>`;
+  o.classList.add('on');
+  mountMascot($('#lockMascot'),'sleep');
+  (async()=>{
+    const pin=await pinOverlay({title:'',sub:'',mode:'verify',fixedLen:V?V.plen:4});
+    /* pinOverlay renders inside #pinRoot, fine; if cancelled, re-render lock */
+    if(pin===null){renderLock();return}
+    o.classList.remove('on');o.innerHTML='';
+    mountMascot($('#hdrMascot'),'wake');
+    renderWallet();resetLockTimer();greet();
+    toast('Welcome back. All '+(S.cards.length)+' cards accounted for.','unlock');
+    if(pendingRequest){const p=pendingRequest;pendingRequest=null;startPaySheet(p)}
+  })();
+}
+['pointerdown','keydown'].forEach(ev=>document.addEventListener(ev,()=>resetLockTimer(),{passive:true}));
+document.addEventListener('visibilitychange',()=>{
+  if(document.hidden){
+    if(S.key)lockTimer&&clearTimeout(lockTimer),$('#privacyOvl').classList.add('on');
+  }else{
+    $('#privacyOvl').classList.remove('on');
+    if(S.key)resetLockTimer();
+  }
+});
+
+/* ================================================================
+   GREETING / NAV
+================================================================ */
+function greet(){
+  const h=new Date().getHours();
+  $('#greetHi').textContent=(h<12?'GOOD MORNING':h<18?'GOOD AFTERNOON':'GOOD EVENING')+(S.settings.name?', '+S.settings.name.toUpperCase():'');
+  const n=S.cards.length;
+  $('#greetMain').innerHTML=n?`Pip keeps <em>${n}</em> snug`:'Your cozy <em>nook</em>';
+}
+function go(v){
+  $$('.view').forEach(x=>x.classList.remove('on'));
+  $('#view-'+v).classList.add('on');
+  $$('.navbtn').forEach(b=>b.classList.toggle('on',b.dataset.view===v));
+  if(v==='wallet')renderWallet();
+}
+ $$('.navbtn').forEach(b=>b.onclick=()=>{haptic(5);go(b.dataset.view)});
+ $('#btnScanCenter').onclick=()=>{haptic(5);go('scan')};
+ $('#btnLockTop').onclick=()=>lockApp();
+ $('#btnSpread').onclick=()=>{S.deckMode=!S.deckMode;renderWallet()};
+
+/* ================================================================
+   ADD-CARD WIZARD
+================================================================ */
+const WIZ={draft:null,step:0,editing:null,camStream:null};
+function typeArt(t){
+  const art={
+    bank:`<svg viewBox="0 0 90 60"><rect x="8" y="12" width="70" height="42" rx="7" fill="#FFB68C" stroke="#26201A" stroke-width="3"/><rect x="8" y="22" width="70" height="8" fill="#26201A"/><rect x="15" y="37" width="14" height="10" rx="2" fill="#F0C75E" stroke="#26201A" stroke-width="2"/></svg>`,
+    id:`<svg viewBox="0 0 90 60"><rect x="8" y="10" width="74" height="44" rx="7" fill="#B9E6D3" stroke="#26201A" stroke-width="3"/><circle cx="26" cy="27" r="8" fill="#FFFDF7" stroke="#26201A" stroke-width="2.5"/><path d="M42 20h30M42 28h30M18 42h54" stroke="#26201A" stroke-width="2.5" stroke-linecap="round"/></svg>`,
+    student:`<svg viewBox="0 0 90 60"><rect x="14" y="20" width="62" height="34" rx="6" fill="#FFD66B" stroke="#26201A" stroke-width="3"/><path d="M45 6 20 15l25 9 25-9Z" fill="#F4562A" stroke="#26201A" stroke-width="2.5"/><path d="M62 20v9" stroke="#26201A" stroke-width="2.5" stroke-linecap="round"/></svg>`,
+    transit:`<svg viewBox="0 0 90 60"><rect x="22" y="8" width="46" height="40" rx="8" fill="#BFD7E4" stroke="#26201A" stroke-width="3"/><rect x="28" y="15" width="34" height="12" rx="3" fill="#FFFDF7" stroke="#26201A" stroke-width="2"/><circle cx="34" cy="52" r="4" fill="#26201A"/><circle cx="56" cy="52" r="4" fill="#26201A"/></svg>`,
+    loyalty:`<svg viewBox="0 0 90 60"><path d="M46 6H16v30l24 20 26-26Z" fill="#F6C1C7" stroke="#26201A" stroke-width="3" stroke-linejoin="round"/><circle cx="27" cy="17" r="4" fill="#FFFDF7" stroke="#26201A" stroke-width="2.5"/></svg>`};
+  return art[t];
+}
+function renderTypePicker(){
+  $('#typeGrid').innerHTML=Object.entries(TYPES).map(([k,t])=>
+    `<button class="typecard" data-type="${k}"><div class="art">${typeArt(k)}</div><b>${t.label}</b><span>${t.desc}</span></button>`).join('');
+  $$('#typeGrid .typecard').forEach(b=>b.onclick=()=>openWizard(null,b.dataset.type));
+}
+function openWizard(editCard,forcedType){
+  WIZ.editing=editCard||null;
+  WIZ.draft=editCard?JSON.parse(JSON.stringify(editCard)):{
+    type:forcedType||'bank',name:'',org:'',holder:'',num:'',exp:'',cvv:'',notes:'',fimg:null,bimg:null,
+    colorway:COLORWAYS[Math.floor(Math.random()*COLORWAYS.length)].id,pattern:'dots',fav:false,
+    createdAt:Date.now(),usedAt:0};
+  WIZ.step=editCard?2:0;
+  const o=$('#ovlWizard');
+  o.innerHTML=`<div class="wizard">
+    <div class="wizhead"><button class="iconbtn" id="wizBack">${icon('arrowl')}</button><h2 id="wizTitle"></h2></div>
+    <div class="wizdots" id="wizDots"></div>
+    <div class="wizbody" id="wizBody"></div>
+    <div class="wizfoot" id="wizFoot"></div></div>`;
+  o.classList.add('on');
+  $('#wizBack').onclick=()=>{stopCam();WIZ.step>0?(WIZ.step--,renderWiz()):closeWizard()};
+  renderWiz();
+}
+function closeWizard(){stopCam();$('#ovlWizard').classList.remove('on');$('#ovlWizard').innerHTML=''}
+function wizChrome(title,step,foot=''){
+  $('#wizTitle').textContent=title;
+  $('#wizDots').innerHTML=[0,1,2,3].map(i=>`<i class="${i<=step?'on':''}"></i>`).join('');
+  $('#wizFoot').innerHTML=foot;
+}
+async function renderWiz(){
+  stopCam();
+  const d=WIZ.draft,t=TYPES[d.type];
+  if(WIZ.step===0){ /* type */
+    wizChrome('What are we adding?',0);
+    $('#wizBody').innerHTML=`<div class="typegrid" style="padding:0">${Object.entries(TYPES).map(([k,tt])=>
+      `<button class="typecard ${k===d.type?'on':''}" data-type="${k}" style="${k===d.type?'outline:3px solid var(--coral);outline-offset:3px':''}"><div class="art">${typeArt(k)}</div><b>${tt.label}</b><span>${tt.desc}</span></button>`).join('')}</div>`;
+    $$('#wizBody .typecard').forEach(b=>b.onclick=()=>{d.type=b.dataset.type;WIZ.step=1;renderWiz()});
+    wizChrome('What are we adding?',0,`<button class="btn dark" id="wNext">Snap it ${icon('chr')}</button>`);
+    $('#wNext').onclick=()=>{WIZ.step=1;renderWiz()};
+  }
+  else if(WIZ.step===1){ /* camera */
+    wizChrome('Snap the card',1,`
+      <button class="btn" id="wImport">${icon('img')}Gallery</button>
+      <button class="btn dark" id="wNext2">${d.fimg?'Next':'Skip snap'} ${icon('chr')}</button>`);
+    $('#wizBody').innerHTML=`
+      <div class="camwrap"><video id="camVideo" autoplay playsinline muted></video>
+        <div class="camframe"><i></i><i></i><i></i><i></i></div>
+        <div class="cammsg" id="camMsg">Starting camera...</div></div>
+      <div class="snapthumbs" id="snapThumbs"></div>
+      <p style="text-align:center;color:var(--ink2);font-weight:700;font-size:13px">Lay the card flat, fill the frame. The photo is stored encrypted, on this device only.</p>
+      <button class="btn primary" id="wShot" style="width:100%;margin-top:10px">${icon('cam')}Capture front</button>`;
+    $('#wImport').onclick=()=>pickImage('front');
+    $('#wNext2').onclick=()=>{WIZ.step=2;renderWiz()};
+    $('#wShot').onclick=()=>captureShot();
+    startCam();
+    paintThumbs();
+  }
+  else if(WIZ.step===2){ /* details */
+    wizChrome('The details',2,`<button class="btn dark" id="wNext3">Style it ${icon('chr')}</button>`);
+    const f=d.fields||{};d.fields=f;
+    $('#wizBody').innerHTML=`
+      <div class="field"><label>Nickname *</label><input id="fName" placeholder="e.g. Main debit, Campus ID" value="${esc(d.name)}"></div>
+      <div class="field"><label>${esc(t.org)}</label><input id="fOrg" placeholder="${esc(t.label)}" value="${esc(d.org)}"></div>
+      <div class="field"><label>${d.type==='bank'?'Name on card':'Your name'}</label><input id="fHolder" autocomplete="off" value="${esc(d.holder)}"></div>
+      <div class="field"><label>${esc(t.num)}</label><input id="fNum" class="mono" inputmode="numeric" autocomplete="off" value="${esc(d.num)}" style="letter-spacing:.08em">
+        <div class="hint" id="numHint"></div></div>
+      ${t.exp?`<div class="field"><label>Valid thru${t.expReq?'':' (optional)'}</label><input id="fExp" class="mono" inputmode="numeric" placeholder="MM/YY" value="${esc(d.exp)}" style="max-width:140px"></div>`:''}
+      ${t.cvv?`<div class="field"><label>CVV</label><input id="fCvv" class="mono" inputmode="numeric" type="password" placeholder="\u2022\u2022\u2022" value="${esc(d.cvv)}" style="max-width:120px">
+        <div class="hint">${icon('shield','width:13px;height:13px')}Sealed with AES-GCM, shown only after your passcode.</div></div>`:''}
+      <div class="field"><label>Notes</label><input id="fNotes" placeholder="Anything worth remembering" value="${esc(d.notes)}"></div>`;
+    const numI=$('#fNum'),hint=$('#numHint');
+    const updNum=()=>{
+      const raw=numI.value.replace(/\D/g,'');numI.value=fmtNum(numI.value);
+      if(!raw){hint.textContent='';hint.className='hint';return}
+      const ok=luhn(raw),b=brandOf(raw);
+      hint.className='hint '+(ok?'ok':'warn');
+      hint.innerHTML=`${icon(ok?'check':'spark','width:13px;height:13px')} ${b}${ok?' \u00b7 checks out':' \u00b7 unusual number (some cards are like that)'}`;
+    };
+    numI.addEventListener('input',updNum);if(d.num)updNum();
+    const expI=$('#fExp');expI&&expI.addEventListener('input',()=>{let v=expI.value.replace(/\D/g,'').slice(0,4);if(v.length>2)v=v.slice(0,2)+'/'+v.slice(2);expI.value=v});
+    const grab=()=>{d.name=$('#fName').value.trim();d.org=$('#fOrg').value.trim();d.holder=$('#fHolder').value.trim();
+      d.num=numI.value.replace(/\s/g,'');d.exp=expI?expI.value:'';const cv=$('#fCvv');d.cvv=cv?cv.value.replace(/\D/g,''):'';d.notes=$('#fNotes').value.trim()};
+    ['fName','fOrg','fHolder','fNum','fExp','fCvv','fNotes'].forEach(id=>{const el=$('#'+id);el&&el.addEventListener('input',grab)});
+    $('#wNext3').onclick=()=>{
+      grab();
+      if(!d.name){$('#fName').focus();$('#fName').classList.add('shake');setTimeout(()=>$('#fName').classList.remove('shake'),450);toast('Give it a nickname first','pencil');return}
+      WIZ.step=3;renderWiz();
+    };
+  }
+  else{ /* style */
+    wizChrome('Pick its outfit',3,`<button class="btn primary" id="wSave">${icon(WIZ.editing?'check':'spark')}${WIZ.editing?'Save changes':'Tuck it in'}</button>`);
+    const cw=colorwayOf(d.colorway);
+    $('#wizBody').innerHTML=`
+      <div class="dcard-wrap" id="prevWrap">${cardHTML(Object.assign({},d,{num:d.num||'4242424242424242',holder:d.holder||'YOUR NAME',exp:d.exp||(TYPES[d.type].exp?'12/28':'')}))}</div>
+      <div class="dcard-tools"><button class="btn small" id="pFlip">${icon('flip')}Flip preview</button></div>
+      <div class="stylepick"><h4>Colorway</h4><div class="swrow">${COLORWAYS.map(c=>
+        `<button class="sw ${c.id===d.colorway?'on':''}" data-cw="${c.id}" style="background:${c.bg}" title="${c.name}"></button>`).join('')}</div>
+      <h4>Pattern</h4><div class="patrow">${Object.keys(PATTERNS).map(p=>
+        `<button class="pat ${p===d.pattern?'on':''}" data-p="${p}" style="background-color:${cw.bg};background-image:${patURL(p,cw)}"></button>`).join('')}</div></div>`;
+    const wrap=$('#prevWrap');bindCard(wrap);
+    wrap.addEventListener('click',()=>flipCard(wrap));
+    $('#pFlip').onclick=e=>{e.stopPropagation();flipCard(wrap)};
+    $$('#wizBody .sw').forEach(b=>b.onclick=()=>{d.colorway=b.dataset.cw;renderWiz()});
+    $$('#wizBody .pat').forEach(b=>b.onclick=()=>{d.pattern=b.dataset.p;renderWiz()});
+    $('#wSave').onclick=async e=>{
+      if(WIZ.editing){
+        const i=S.cards.findIndex(c=>c.id===d.id);S.cards[i]=d;
+      }else{
+        d.id=uid();S.cards.unshift(d);
+        burst(e.clientX,e.clientY);haptic([15,40,15]);
+      }
+      await persistVault();closeWizard();go('wallet');renderWallet();greet();
+      toast(WIZ.editing?'Updated nicely':'Card tucked into the nook','heart');
+    };
+  }
+}
+function paintThumbs(){
+  const box=$('#snapThumbs');if(!box)return;const d=WIZ.draft;
+  box.innerHTML=(d.fimg?`<div class="snapthumb"><img src="${d.fimg}"><em>FRONT</em></div>`:'')
+              +(d.bimg?`<div class="snapthumb"><img src="${d.bimg}"><em>BACK</em></div>`:'');
+  const shot=$('#wShot');
+  if(d.fimg){shot.innerHTML=icon('cam')+'Capture back';shot.dataset.side='back'}
+  else{shot.innerHTML=icon('cam')+'Capture front';shot.dataset.side='front'}
+}
+/* ---------- camera ---------- */
+async function startCam(){
+  const v=$('#camVideo'),msg=$('#camMsg');if(!v)return;
+  try{
+    WIZ.camStream=await navigator.mediaDevices.getUserMedia({video:{facingMode:'environment',width:{ideal:1280}}});
+    v.srcObject=WIZ.camStream;msg.textContent='Lay your card flat and fill the frame';
+  }catch(e){
+    msg.textContent='No camera? Use "Gallery" below or skip the snap.';
+    toast('Camera unavailable \u2014 gallery import works just as well','cam');
+  }
+}
+function stopCam(){if(WIZ.camStream){WIZ.camStream.getTracks().forEach(t=>t.stop());WIZ.camStream=null}}
+async function shrink(dataURL,max=640,q=.72){
+  return new Promise(res=>{const im=new Image();im.onload=()=>{
+    const sc=Math.min(1,max/im.width),c=document.createElement('canvas');
+    c.width=im.width*sc;c.height=im.height*sc;
+    c.getContext('2d').drawImage(im,0,0,c.width,c.height);
+    res(c.toDataURL('image/jpeg',q));};im.src=dataURL;});
+}
+function captureShot(){
+  const v=$('#camVideo');if(!v||!v.videoWidth){toast('Camera is not ready yet','cam');return}
+  const vw=v.videoWidth,vh=v.videoHeight,AR=1.586;
+  let cw=vw,chh=cw/AR;if(chh>vh){chh=vh;cw=vh*AR}
+  const c=document.createElement('canvas');c.width=640;c.height=640/AR;
+  c.getContext('2d').drawImage(v,(vw-cw)/2,(vh-chh)/2,cw,chh,0,0,c.width,c.height);
+  assignSnap(c.toDataURL('image/jpeg',.72),$('#wShot').dataset.side||'front');
+}
+function pickImage(side){
+  const inp=$('#fileImg');inp.onchange=()=>{const f=inp.files[0];if(!f)return;
+    const fr=new FileReader();fr.onload=async()=>assignSnap(await shrink(fr.result),side);fr.readAsDataURL(f);inp.value='';};
+  inp.click();
+}
+function assignSnap(dataURL,side){
+  WIZ.draft[side==='back'?'bimg':'fimg']=dataURL;haptic(12);
+  if(side==='front')toast('Front captured. Now the back?','check');
+  paintThumbs();
+  if(side==='front')$('#camMsg')&&($('#camMsg').textContent='Nice. Flip it over for the back.');
+}
+
+/* ================================================================
+   PAY / MERCHANT REQUEST
+================================================================ */
+const DEMO_MERCHANTS=[['Bean There Caf\u00e9','coffee'],['Marta\u2019s Flowers','heart'],['Pixel Arcade','spark'],['Nimbus Rides','bus'],['Sunny Slice Pizzeria','star']];
+let payCtx=null;
+function openPaySheet(presetCard){
+  const opts=presetCard?[presetCard]:currentList().slice(0,6);
+  if(!opts.length){toast('Add a card first \u2014 Pip has empty pockets','wallet');return}
+  payCtx={card:opts[0],merchant:'Bean There Caf\u00e9',amount:'$4.50'};
+  startPaySheet({merchant:'Bean There Caf\u00e9',amount:'$4.50',note:'Table 4',cards:opts});
+}
+function startPaySheet(req){
+  const cards=req.cards||currentList().slice(0,6);
+  if(!cards.length){toast('No cards to pay with yet','wallet');return}
+  payCtx={card:cards[0],merchant:req.merchant,amount:req.amount};
+  const sh=sheet(`
+    <h3>Payment request</h3><div class="sub">${esc(req.merchant)}${req.note?' \u00b7 '+esc(req.note):''} wants card details</div>
+    <div class="payamount" style="margin-bottom:12px">${esc(req.amount)}</div>
+    <div class="picksheet">${cards.map((c,i)=>`<div class="pickcard ${i===0?'on':''}" data-id="${c.id}">${cardHTML(c,{interactive:false})}<div class="picksel-name">${esc(c.name)}</div></div>`).join('')}</div>
+    <button class="btn primary" id="payGo" style="width:100%">${icon('lock')}Approve with passcode</button>
+    <button class="btn" id="payCopy" style="width:100%;margin-top:10px">${icon('copy')}Copy details instead</button>
+    <p style="text-align:center;color:var(--ink2);font-weight:700;font-size:12px;margin-top:12px">${icon('shield','width:13px;height:13px;display:inline;vertical-align:-2px')} Passcode only. The CVV travels quietly, never asked twice.</p>
+    <div id="payResult"></div>`);
+  sh.querySelectorAll('.pickcard').forEach(pc=>pc.onclick=()=>{
+    sh.querySelectorAll('.pickcard').forEach(x=>x.classList.remove('on'));pc.classList.add('on');
+    payCtx.card=cards.find(c=>c.id===pc.dataset.id);haptic(6);
+  });
+  sh.querySelector('#payGo').onclick=async()=>{
+    const pin=await pinGate('Approve payment','For '+payCtx.merchant+' \u00b7 '+payCtx.amount);
+    if(pin===null)return;
+    const box=sh.querySelector('#payResult');
+    box.innerHTML=`<div class="payok"><div class="bigcheck">${icon('check','width:30px;height:30px')}</div><div id="okMascot"></div>
+      <h3 style="font-family:'Fraunces',serif">Off it goes</h3>
+      <p style="color:var(--ink2);font-weight:700;font-size:14px;margin:4px 0 14px">${esc(brandOf(payCtx.card.num||''))} \u2022\u2022\u2022\u2022 ${(payCtx.card.num||'\u2022\u2022\u2022\u2022').replace(/\D/g,'').slice(-4)} sent to ${esc(payCtx.merchant)}</p>
+      <button class="btn dark" id="payDone">Done</button></div>`;
+    mountMascot(box.querySelector('#okMascot'),'happy');
+    burst(window.innerWidth/2,window.innerHeight/2);haptic([15,50,15]);
+    S.pays.unshift({id:uid(),merchant:payCtx.merchant,amount:payCtx.amount,cardName:payCtx.card.name,last4:(payCtx.card.num||'').replace(/\D/g,'').slice(-4),t:Date.now(),ok:true});
+    payCtx.card.usedAt=Date.now();
+    await persistVault();renderPayHistory();greet();
+    box.querySelector('#payDone').onclick=closeSheet;
+    setMood($('#hdrMascot'),'happy');setTimeout(()=>setMood($('#hdrMascot'),'wake'),2500);
+  };
+  sh.querySelector('#payCopy').onclick=async()=>{
+    const c=payCtx.card;
+    const pin=await pinGate('Copy card details','They will sit on your clipboard');
+    if(pin===null)return;
+    const txt=`${c.name}\n${brandOf(c.num||'')} ${maskNum(c.num)}\nNumber: ${fmtNum(c.num||'')}\nExpiry: ${c.exp||'\u2014'}\nCVV: ${c.cvv||'\u2014'}\nHolder: ${c.holder||''}`;
+    try{await navigator.clipboard.writeText(txt)}catch(e){const ta=document.createElement('textarea');ta.value=txt;document.body.appendChild(ta);ta.select();document.execCommand('copy');ta.remove()}
+    S.pays.unshift({id:uid(),merchant:payCtx.merchant,amount:payCtx.amount,cardName:c.name,last4:(c.num||'').replace(/\D/g,'').slice(-4),t:Date.now(),ok:true,copied:true});
+    await persistVault();renderPayHistory();closeSheet();
+    toast('Copied. Paste it where it is needed.','copy');
+  };
+}
+/* public connector for future apps/pages on this origin */
+window.CardNook={
+  async requestPayment({merchant,amount,note}={}){
+    if(!S.key){pendingRequest={merchant,amount,note};lockApp();return new Promise(()=>{})}
+    return new Promise(res=>{
+      const cards=currentList().slice(0,6);
+      if(!cards.length){res({ok:false,reason:'no-cards'});return}
+      startPaySheet({merchant:merchant||'A merchant',amount:amount||'',note,cards});
+      /* resolve when sheet closes; the approved log is in S.pays[0] */
+      const iv=setInterval(()=>{if(!$('#sheetRoot').classList.contains('on')){clearInterval(iv);
+        const last=S.pays[0];
+        res(last&&last.merchant===(merchant||'A merchant')?{ok:true,card:{last4:last.last4,name:last.cardName}}:{ok:false,reason:'cancelled'});
+      }},300);
+    });
+  }
+};
+function renderPayHistory(){
+  const box=$('#payHistory');
+  if(!S.pays.length){box.innerHTML=`<div class="emptyrow">Quiet so far. Approved requests will land here.</div>`;return}
+  box.innerHTML=S.pays.slice(0,8).map(p=>`<div class="histrow stk">${icon(p.copied?'copy':'check')}
+    <div class="t"><b>${esc(p.merchant)}</b><span>${esc(p.cardName)} \u2022\u2022\u2022\u2022 ${esc(p.last4)} \u00b7 ${timeAgo(p.t)}</span></div>
+    <span class="amt">${esc(p.amount)}</span></div>`).join('');
+}
+ $('#btnDemoPay').onclick=async()=>{
+  if(!S.key){toast('Unlock the nook first','lock');return}
+  toast('A merchant is asking for a card...','bell');
+  await sleep(900);
+  window.CardNook.requestPayment({merchant:'Bean There Caf\u00e9',amount:'$4.50',note:'Table 4'});
+};
+ $('#btnCopyCode').onclick=async()=>{try{await navigator.clipboard.writeText($('#connCode').textContent)}catch(e){}toast('Snippet copied','copy')};
+
+/* ================================================================
+   SETTINGS
+================================================================ */
+ $('#setAutolock').value=String(S.settings.autolock);
+ $('#setAutolock').onchange=e=>{S.settings.autolock=+e.target.value;saveSettings();resetLockTimer();toast('Auto-lock updated','clock')};
+ $('#setName').value=S.settings.name||'';
+ $('#setName').oninput=e=>{S.settings.name=e.target.value.trim();saveSettings();greet()};
+ $('#btnLockNow').onclick=()=>lockApp();
+ $('#btnChangePin').onclick=async()=>{
+  const old=await pinGate('Change passcode','Confirm the current one');
+  if(old===null)return;
+  const np=await createPinFlow();if(np===null)return;
+  await changePinFlow(np);toast('New passcode wrapped around the vault','key');
+};
+ $('#btnExport').onclick=async()=>{
+  if(!S.key)return;
+  const pin=await pinGate('Export backup','The file is sealed with your passcode');
+  if(pin===null)return;
+  const blob=new Blob([JSON.stringify({app:'card-nook',exported:Date.now(),vault:V})],{type:'application/json'});
+  const a=document.createElement('a');a.href=URL.createObjectURL(blob);
+  a.download='card-nook-backup-'+new Date().toISOString().slice(0,10)+'.json';a.click();
+  setTimeout(()=>URL.revokeObjectURL(a.href),3000);
+  toast('Backup downloaded. Keep it somewhere cozy.','down');
+};
+ $('#btnImport').onclick=()=>$('#fileImport').click();
+ $('#fileImport').onchange=async()=>{
+  const f=$('#fileImport').files[0];$('#fileImport').value='';if(!f)return;
+  try{
+    const obj=JSON.parse(await f.text());
+    const BV=obj.vault||obj;
+    if(!BV.wrap||!BV.salt)throw 0;
+    if(!V){ V=BV;saveVault();toast('Backup moved in. Unlock with its passcode.','up');lockApp();return }
+    const pin=await pinOverlay({title:'Backup passcode',sub:'The passcode that sealed that file',mode:'reauth',fixedLen:BV.plen||4});
+    if(pin===null)return;
+    const bk=await deriveKey(pin,ub64(BV.salt));
+    const raw=ub64(await decJson(bk,BV.wrap));
+    const bkey=await importVaultKey(raw);
+    const bd=await decJson(bkey,BV.data);
+    let n=0;const have=new Set(S.cards.map(c=>c.id));
+    (bd.cards||[]).forEach(c=>{if(!have.has(c.id)){c.id=uid();S.cards.push(c);n++}});
+    S.pays=[...(bd.pays||[]),...S.pays];
+    await persistVault();renderWallet();renderPayHistory();greet();
+    toast(`Imported ${n} card${n===1?'':'s'} from the backup`,'up');
+  }catch(e){toast('That file did not want to open. Wrong passcode or wrong file.','x')}
+};
+ $('#btnWipe').onclick=async()=>{
+  const yes=await ask({title:'Erase everything?',body:'Cards, history and passcode will be shredded from this device. A backup file is your only way back.',ok:'Shred it',danger:true});
+  if(!yes)return;
+  const pin=await pinGate('Final check','Passcode to authorize the shred');
+  if(pin===null)return;
+  localStorage.removeItem('cn.vault');localStorage.removeItem('cn.settings');
+  location.reload();
+};
+/* offline pack: download sw.js next to the hosted HTML for full PWA offline */
+ $('#btnSw').onclick=()=>{
+  const sw=`const CACHE='card-nook-v1';
+self.addEventListener('install',e=>{e.waitUntil(caches.open(CACHE).then(c=>c.addAll(['./'])).then(()=>self.skipWaiting()))});
+self.addEventListener('activate',e=>{e.waitUntil(caches.keys().then(ks=>Promise.all(ks.filter(k=>k!==CACHE).map(k=>caches.delete(k)))).then(()=>self.clients.claim()))});
+self.addEventListener('fetch',e=>{if(e.request.method!=='GET')return;
+ e.respondWith(caches.match(e.request,{ignoreSearch:true}).then(r=>r||fetch(e.request).then(res=>{const cp=res.clone();caches.open(CACHE).then(c=>c.put(e.request,cp));return res}).catch(()=>caches.match('./'))))});`;
+  const blob=new Blob([sw],{type:'text/javascript'});
+  const a=document.createElement('a');a.href=URL.createObjectURL(blob);a.download='sw.js';a.click();
+  setTimeout(()=>URL.revokeObjectURL(a.href),3000);
+  toast('Saved sw.js \u2014 put it next to this HTML file when you host it','wifioff');
+};
+function swStatus(){
+  const tag=$('#swTag'),sub=$('#swSub');
+  const on='serviceWorker' in navigator&&navigator.serviceWorker.getController&&navigator.serviceWorker.controller;
+  tag.textContent=on?'ON':'SETUP';tag.className='nettag '+(on?'ok':'no');
+  sub.textContent=on?'Offline shell active \u2014 open me with zero internet'
+    :'Serving this file? Tap to download sw.js and place it beside it';
+}
+window.addEventListener('online',()=>toast('Back online \u2014 the nook did not notice','spark'));
+window.addEventListener('offline',()=>toast('Offline now. Everything still works.','wifioff'));
+
+/* ================================================================
+   PWA: manifest + icons + install
+================================================================ */
+let deferredPrompt=null;
+(function injectManifest(){
+  try{
+    const c=document.createElement('canvas');c.width=c.height=512;const x=c.getContext('2d');
+    x.fillStyle='#26201A';const rr=(a,b,w,h,r)=>{x.beginPath();x.roundRect?x.roundRect(a,b,w,h,r):x.rect(a,b,w,h);x.fill()};
+    rr(32,32,448,448,110);
+    x.fillStyle='#FFC98F';x.strokeStyle='#FBF5EA';x.lineWidth=16;
+    x.beginPath();x.roundRect(96,180,320,230,56);x.fill();x.stroke();
+    x.fillStyle='#F4562A';x.beginPath();x.roundRect(200,130,112,90,20);x.fill();x.stroke();
+    x.fillStyle='#26201A';
+    x.beginPath();x.arc(200,280,17,0,7);x.fill();x.beginPath();x.arc(312,280,17,0,7);x.fill();
+    x.lineWidth=14;x.strokeStyle='#26201A';x.beginPath();x.arc(256,320,26,0.15*Math.PI,0.85*Math.PI);x.stroke();
+    const icon=c.toDataURL('image/png');
+    const man={name:'Card Nook',short_name:'Card Nook',description:'A cozy, local-first home for your cards',
+      start_url:location.href,display:'standalone',background_color:'#FBF5EA',theme_color:'#26201A',
+      icons:[{src:icon,sizes:'512x512',type:'image/png',purpose:'any'},{src:icon,sizes:'192x192',type:'image/png'}]};
+    const l=document.createElement('link');l.rel='manifest';
+    l.href='data:application/manifest+json,'+encodeURIComponent(JSON.stringify(man));
+    document.head.appendChild(l);
+    const al=document.createElement('link');al.rel='apple-touch-icon';al.href=icon;document.head.appendChild(al);
+  }catch(e){}
+})();
+window.addEventListener('beforeinstallprompt',e=>{e.preventDefault();deferredPrompt=e;
+  $('#installSub').textContent='Ready to install \u2014 tap here'});
+ $('#btnInstall').onclick=async()=>{
+  if(deferredPrompt){deferredPrompt.prompt();const r=await deferredPrompt.userChoice;
+    toast(r.outcome==='accepted'?'Nook installed. It lives on your home screen now.':'Maybe later \u2014 Pip understands','phone');
+    deferredPrompt=null;}
+  else toast('Open this in your phone browser menu \u2192 "Add to Home Screen"','phone');
+};
+if('serviceWorker' in navigator){ try{ navigator.serviceWorker.register('sw.js').then(swStatus).catch(()=>{}) }catch(e){} }
+
+/* ================================================================
+   ONBOARDING
+================================================================ */
+function renderOnboard(){
+  const o=$('#ovlOnboard');
+  o.innerHTML=`<div id="obMascot"></div>
+    <h2>A cozy home for<br>every card you carry</h2>
+    <p>Bank cards, IDs, student passes \u2014 snapped, sealed with your passcode, and stored only on this device. Leave the wallet at home.</p>
+    <button class="btn primary" id="obGo" style="min-width:240px">${icon('spark')}Create my vault</button>
+    <button class="btn" id="obRestore" style="min-width:240px;margin-top:10px">${icon('up')}Restore a backup</button>
+    <div style="margin-top:26px;display:flex;gap:8px;justify-content:center;color:var(--ink2);font-weight:700;font-size:12px">
+      <span class="pill">${icon('shield','width:14px;height:14px')}AES-GCM sealed</span>
+      <span class="pill">${icon('wifioff','width:14px;height:14px')}100% offline</span></div>`;
+  o.classList.add('on');
+  mountMascot($('#obMascot'),'wake');
+  $('#obGo').onclick=async()=>{
+    const pin=await createPinFlow();if(pin===null)return;
+    await createVault(pin);
+    o.classList.remove('on');o.innerHTML='';
+    mountMascot($('#hdrMascot'),'wake');
+    const r=document.body.getBoundingClientRect();
+    burst(window.innerWidth/2,window.innerHeight/2);
+    renderWallet();greet();toast('Vault created. Only your passcode opens it.','lock');
+  };
+  $('#obRestore').onclick=()=>$('#fileImport').click();
+}
+
+/* ================================================================
+   INIT
+================================================================ */
+(function init(){
+  if(!needCrypto())return;
+  loadSettings();loadVault();
+  mountMascot($('#hdrMascot'),'wake');
+  mountMascot($('#footMascot'),'wake');
+  mountMascot($('#privMascot'),'sleep');
+  renderTypePicker();renderPayHistory();swStatus();greet();
+  if(!V){renderOnboard()}else{renderLock()}
+  let rz;window.addEventListener('resize',()=>{clearTimeout(rz);rz=setTimeout(()=>{if(S.key)renderWallet()},200)});
+})();
+</script>
+</body>
+</html>
