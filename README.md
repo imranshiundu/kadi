@@ -59,3 +59,15 @@ await window.Kadi.requestPayment({ merchant: 'Bean There Cafe', amount: '$4.50',
 ```
 
 (`window.CardNook` is kept as a backwards-compatible alias.)
+
+## Navigation & flows
+
+Bottom nav: **Home** (cards carousel, requests, activity) · **Requests**
+(scrolls to incoming card requests) · big **Scan** button (3D camera scan,
+straight into a new card) · **Pay** (sheet for the active card) · **Settings**
+(Profile, Security, App, Your data — all on one page).
+
+Flows: tap a card to flip it, tap its name for details (flip, favorite,
+reveal/copy, 3D view, edit, remove). Requests → Respond → approve with
+passcode → activity entry. Camera blocks? The scanner says so and offers
+the gallery instead.

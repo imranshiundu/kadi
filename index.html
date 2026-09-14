@@ -114,7 +114,7 @@ svg.ic{width:22px;height:22px;stroke:currentColor;stroke-width:1.8;fill:none;str
 .bnote{margin-top:3.4cqi;font-size:2.9cqi;line-height:1.6;color:rgba(255,255,255,.45);font-weight:600}
 
 /* ================= STAGE / CAROUSEL ================= */
-#scrHome{position:relative;z-index:2;max-width:600px;margin:0 auto;padding:0 22px 60px;transition:transform .5s var(--spring),border-radius .5s;transform-origin:top center}
+#scrHome{position:relative;z-index:2;max-width:600px;margin:0 auto;padding:0 22px 110px;transition:transform .5s var(--spring),border-radius .5s;transform-origin:top center}
 #scrHome.behind{transform:scale(.94);border-radius:28px;overflow:hidden}
 header.home{display:flex;align-items:flex-end;justify-content:space-between;padding:64px 0 22px}
 header.home h1{font-size:34px;font-weight:800;letter-spacing:-.03em;line-height:1}
@@ -161,7 +161,7 @@ header.home .sub{font-size:14px;color:var(--tx2);font-weight:600;margin-top:7px}
 
 /* ================= PUSH VIEWS ================= */
 .push{position:fixed;inset:0;z-index:40;background:var(--bg);transform:translateX(100%);transition:transform .55s var(--spring);
-  overflow-y:auto;overscroll-behavior:contain;padding:0 22px 60px}
+  overflow-y:auto;overscroll-behavior:contain;padding:0 22px 110px}
 .push.on{transform:none}
 .phead{position:sticky;top:0;z-index:5;display:flex;align-items:center;gap:12px;padding:58px 0 16px;background:linear-gradient(var(--bg) 65%,transparent)}
 .phead h1{font-size:26px;font-weight:800;letter-spacing:-.02em;flex:1;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
@@ -381,6 +381,26 @@ header.home .sub{font-size:14px;color:var(--tx2);font-weight:600;margin-top:7px}
 .scanthumbs{display:flex;gap:12px;margin-top:12px}
 .scanthumbs img{width:88px;aspect-ratio:1.586;object-fit:cover;border-radius:10px;border:1px solid var(--line)}
 .scanthumbs .cap{font-size:10px;font-weight:800;color:var(--tx3);text-align:center;margin-top:4px;letter-spacing:.08em}
+
+/* bottom nav */
+.actions{display:none!important}
+.cap{cursor:pointer}
+#tabbar{position:fixed;left:50%;transform:translateX(-50%);bottom:0;width:100%;max-width:600px;z-index:45;
+  display:flex;align-items:flex-end;justify-content:space-around;
+  padding:8px 10px calc(10px + env(safe-area-inset-bottom));
+  background:rgba(14,14,18,.84);backdrop-filter:blur(24px) saturate(150%);-webkit-backdrop-filter:blur(24px) saturate(150%);
+  border-top:1px solid var(--line)}
+.tab{display:flex;flex-direction:column;align-items:center;gap:3px;font-size:10.5px;font-weight:800;color:var(--tx3);
+  padding:6px 12px;border-radius:12px;flex:1;transition:transform .12s}
+.tab svg.ic{width:21px;height:21px}
+.tab.on{color:var(--tx)}
+.tab:active{transform:scale(.92)}
+.tabfab{width:58px;height:58px;border-radius:50%;background:#F5F5F7;color:#0A0A0D;flex:none;
+  display:flex;align-items:center;justify-content:center;margin-top:-30px;
+  border:1px solid rgba(255,255,255,.2);box-shadow:0 10px 26px rgba(0,0,0,.55);transition:transform .12s}
+.tabfab:active{transform:scale(.9)}
+.tabfab svg.ic{width:24px;height:24px}
+#vSettings .phead,#vSettings .setgroup,#vSettings .footnote{max-width:600px;margin-left:auto;margin-right:auto}
 </style>
 </head>
 <body>
@@ -444,7 +464,7 @@ header.home .sub{font-size:14px;color:var(--tx2);font-weight:600;margin-top:7px}
     <div class="name" id="capName"></div>
     <div class="sub" id="capSub"></div>
     <div class="dots" id="dots"></div>
-    <div class="hint">Drag to browse &middot; tap to flip</div>
+    <div class="hint">Drag to browse &middot; tap card to flip &middot; tap name for details</div>
   </div>
 
   <div class="actions">
@@ -481,6 +501,15 @@ header.home .sub{font-size:14px;color:var(--tx2);font-weight:600;margin-top:7px}
   <div class="footnote">AES-256 &middot; SEALED ON THIS DEVICE &middot; NOTHING LEAVES</div>
 </div>
 
+<!-- ============ BOTTOM NAV ============ -->
+<nav id="tabbar">
+  <button class="tab on" id="tabHome"><svg class="ic"><use href="#i-cc"/></svg><span>Home</span></button>
+  <button class="tab" id="tabReq"><svg class="ic"><use href="#i-bell"/></svg><span>Requests</span></button>
+  <button class="tabfab" id="tabScan" title="Scan a card"><svg class="ic"><use href="#i-cam"/></svg></button>
+  <button class="tab" id="tabPay"><svg class="ic"><use href="#i-waves"/></svg><span>Pay</span></button>
+  <button class="tab" id="tabSet"><svg class="ic"><use href="#i-gear"/></svg><span>Settings</span></button>
+</nav>
+
 <!-- ============ DETAIL PUSH ============ -->
 <div class="push" id="vDetail">
   <div class="phead">
@@ -492,6 +521,7 @@ header.home .sub{font-size:14px;color:var(--tx2);font-weight:600;margin-top:7px}
     <button class="btn ghost" id="dFlipBtn" style="padding:11px 18px;font-size:13.5px"><svg class="ic" style="width:15px;height:15px"><use href="#i-flip"/></svg>Flip</button>
     <button class="btn ghost" id="dFavBtn" style="padding:11px 18px;font-size:13.5px"><svg class="ic" style="width:15px;height:15px"><use href="#i-star"/></svg>Favorite</button>
     <button class="btn ghost" id="d3dBtn" style="padding:11px 18px;font-size:13.5px"><svg class="ic" style="width:15px;height:15px"><use href="#i-cube"/></svg>3D</button>
+    <button class="btn ghost" id="dEditBtn" style="padding:11px 18px;font-size:13.5px"><svg class="ic" style="width:15px;height:15px"><use href="#i-pencil"/></svg>Edit</button>
   </div>
   <div class="infobox glass" id="dRows"></div>
   <div style="margin-top:24px"><button class="btn danger w" id="dDelete"><svg class="ic" style="width:16px;height:16px"><use href="#i-trash"/></svg>Remove card</button></div>
@@ -839,7 +869,7 @@ function caption(i){
 }
 function renderDots(){
   $('#dots').innerHTML=S.cards.map((_,i)=>`<i data-i="${i}"></i>`).join('');
-  $$('#dots i').forEach(d=>d.onclick=()=>{CAR.target=+d.dataset.i;haptic(4)});
+  $$('#dots i').forEach(d=>d.onclick=e=>{e.stopPropagation();CAR.target=+d.dataset.i;haptic(4)});
 }
 function setTilt(el,nx,ny){
   if(!S.settings.fx3d)return;
@@ -945,9 +975,10 @@ function activeCard(){return S.cards[CAR.lastAct]}
  $('#actFlip').onclick=()=>{const c=activeCard();if(c)flipToggle($(`#stageInner .wcard[data-i="${CAR.lastAct}"]`))};
  $('#actDetails').onclick=()=>{const c=activeCard();if(c)openDetail(c.id)};
  $('#actPay').onclick=()=>{const c=activeCard();if(c)openPay(c)};
+ $('.cap').onclick=()=>{const c=activeCard();if(c)openDetail(c.id)};
  $('#btnAdd').onclick=()=>openAdd(null);
  $('#btnEmptyAdd').onclick=()=>openAdd(null);
- $('#btnSettings').onclick=()=>openPush('vSettings');
+ $('#btnSettings').onclick=()=>{setTab('tabSet');openPush('vSettings')};
 
 function renderActivity(){
   const box=$('#actList');
@@ -1053,11 +1084,12 @@ function bindTiltBox(box){
    ADD / EDIT
 ============================================================ */
 const A={draft:null,editing:false,camStream:null,side:'front'};
-function openAdd(editCard){
-  A.editing=!!editCard;
-  A.draft=editCard?JSON.parse(JSON.stringify(editCard)):{
-    id:uid(),type:'bank',name:'',org:'',holder:'',num:'',exp:'',cvv:'',notes:'',fimg:null,bimg:null,
-    style:TYPES.bank.style,fav:false,createdAt:Date.now(),usedAt:0};
+function freshDraft(){return{
+  id:uid(),type:'bank',name:'',org:'',holder:'',num:'',exp:'',cvv:'',notes:'',fimg:null,bimg:null,
+  style:TYPES.bank.style,fav:false,createdAt:Date.now(),usedAt:0}}
+function openAdd(editCard,keepNew){
+  A.editing=!!editCard&&!keepNew;
+  A.draft=editCard?JSON.parse(JSON.stringify(editCard)):freshDraft();
   $('#aTitle').textContent=A.editing?'Edit Card':'New Card';
   $('#aTypes').innerHTML=Object.entries(TYPES).map(([k,t])=>
     `<button class="tchip ${k===A.draft.type?'on':''}" data-t="${k}">${icon(t.icon,'width:16px;height:16px')}${t.label}</button>`).join('');
@@ -1130,6 +1162,7 @@ let prevT=null;
     if(i>=0)S.cards[i]=A.draft;
     S.ui.activeId=A.draft.id;
     await persist();$('#vAdd').classList.remove('on');renderHome();
+    if($('#vDetail').classList.contains('on'))openDetail(A.draft.id);
     toast('Card updated','check');
   }else{
     S.cards.unshift(A.draft);S.ui.activeId=A.draft.id;
@@ -1152,9 +1185,10 @@ async function startCam(){
     v.srcObject=A.camStream;
     $('#camMsg').textContent=A.side==='front'?'Capture the FRONT of the card':'Now the BACK';
   }catch(e){
-    $('#camMsg').textContent='No camera available';
-    toast('Camera unavailable \u2014 importing from gallery instead','cam');
-    setTimeout(()=>pickImg(),400);
+    const denied=e&&(e.name==='NotAllowedError'||e.name==='SecurityError');
+    $('#camMsg').textContent=denied?'Camera blocked \u2014 allow it in site settings':'No camera available';
+    toast(denied?'Camera blocked \u2014 allow it, or use gallery':'Camera unavailable \u2014 importing from gallery instead','cam');
+    setTimeout(()=>pickImg(),600);
   }
 }
 function stopCam(){if(A.camStream){A.camStream.getTracks().forEach(t=>t.stop());A.camStream=null}}
@@ -1180,6 +1214,28 @@ function pickImg(){
     fr.readAsDataURL(f);inp.value='';stopCam();$('#vCam').classList.remove('on')};
   inp.click();
 }
+
+/* ============================================================
+   BOTTOM NAV
+============================================================ */
+function setTab(id){$$('#tabbar .tab').forEach(t=>t.classList.toggle('on',t.id===id))}
+function goHome(){sheetClose();['vDetail','vSettings'].forEach(id=>closePush(id));
+  if($('#vAdd').classList.contains('on'))$('#vAdd').classList.remove('on');
+  if($('#vScan3d').classList.contains('on'))closeScan();
+  if($('#vCam').classList.contains('on')){stopCam();$('#vCam').classList.remove('on')}
+  window.scrollTo({top:0,behavior:'smooth'});setTab('tabHome')}
+$('#tabHome').onclick=goHome;
+$('#tabReq').onclick=()=>{setTab('tabReq');
+  const r=$('#reqSection');
+  if(r&&!r.classList.contains('hide'))r.scrollIntoView({behavior:'smooth',block:'start'});
+  else goHome()};
+$('#tabScan').onclick=()=>{haptic(8);
+  if($('#vAdd').classList.contains('on')){grabFields();openScan()}
+  else{A.editing=false;A.draft=freshDraft();openScan()}};
+$('#tabPay').onclick=()=>{setTab('tabPay');
+  if(!S.cards.length){toast('Add a card first','cardstack');return}
+  openPay(activeCard()||S.cards[0])};
+$('#tabSet').onclick=()=>{setTab('tabSet');openPush('vSettings')};
 
 /* ============================================================
    PAY SHEET + CONNECTOR
@@ -1551,9 +1607,10 @@ async function startScanCam(){
     v.srcObject=SCAN.stream;
     $('#scanMsg').textContent=SCAN.side==='front'?'Line up the FRONT inside the frame':'Flip it \u2014 now the BACK';
   }catch(e){
-    $('#scanMsg').textContent='No camera \u2014 pick from gallery';
-    toast('Camera unavailable \u2014 pick from gallery','cam');
-    setTimeout(()=>scanPick(),500);
+    const denied=e&&(e.name==='NotAllowedError'||e.name==='SecurityError');
+    $('#scanMsg').textContent=denied?'Camera blocked \u2014 allow it in site settings':'No camera \u2014 pick from gallery';
+    toast(denied?'Camera blocked \u2014 allow it, or use gallery':'Camera unavailable \u2014 pick from gallery','cam');
+    setTimeout(()=>scanPick(),600);
   }
 }
 function stopScanCam(){if(SCAN.stream){SCAN.stream.getTracks().forEach(t=>t.stop());SCAN.stream=null}}
@@ -1600,11 +1657,17 @@ function paintScanThumbs(){
  $('#scanUse').onclick=()=>{
   if(!(SCAN.front&&SCAN.back)){toast('Capture both sides first','cam');return}
   A.draft.fimg=SCAN.front;A.draft.bimg=SCAN.back;
-  paintSnaps();paintPreview();closeScan();
-  toast('3D scans attached to the card','check');
+  if($('#vAdd').classList.contains('on')){
+    paintSnaps();paintPreview();closeScan();
+    toast('3D scans attached to the card','check');
+  }else{
+    closeScan();openAdd(A.draft,true);
+    toast('Scans attached \u2014 fill in the details','check');
+  }
  };
  $('#btnScan3d').onclick=()=>{grabFields();openScan()};
  $('#d3dBtn').onclick=()=>{const c=S.cards.find(x=>x.id===D.id);if(c)openViewer({card:c})};
+ $('#dEditBtn').onclick=()=>{const c=S.cards.find(x=>x.id===D.id);if(c)openAdd(c)};
 async function showThree(){
   if(!(SCAN.front&&SCAN.back))return;
   $('#scanLive').classList.add('hide');$('#threeWrap').classList.remove('hide');
