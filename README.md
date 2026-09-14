@@ -15,6 +15,25 @@ npx serve .
 python3 -m http.server 8000
 ```
 
+## Scan in 3D
+
+New Card → **Scan card in 3D**: the camera guides a front + back capture,
+then three.js (loaded once, on demand) builds a spinnable 3D card from your
+photos. Works offline after the first load; without internet it falls back to
+saving the photos. Any saved card can be re-opened in 3D from Details → **3D**.
+
+## Settings & profile
+
+Everything lives on the one Settings page: Profile (name + avatar color),
+Security (passcode, auto-lock, masking), App (install, offline pack,
+3D showcase effects), and Your data (encrypted backup, restore, erase).
+
+## Install
+
+Kadi is a PWA: open https://kadi-app.vercel.app → Settings → Install
+(or the browser's Install app / Add to Home Screen). Shortcuts for
+Add card and Pay are included.
+
 ## Deploy (Vercel)
 
 ```sh

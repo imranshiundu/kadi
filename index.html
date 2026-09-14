@@ -6,6 +6,7 @@
 <meta name="theme-color" content="#000000">
 <meta name="mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-title" content="Kadi">
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
 <meta name="description" content="Kadi — every card you carry, sealed on your device.">
 <title>Kadi — every card you carry, sealed on your device</title>
@@ -354,6 +355,32 @@ header.home .sub{font-size:14px;color:var(--tx2);font-weight:600;margin-top:7px}
 #lightbox.on{display:flex}
 #lightbox img{max-width:100%;max-height:82vh;border-radius:16px;border:1px solid rgba(255,255,255,.15)}
 #lightbox .cbtn{position:absolute;top:calc(18px + env(safe-area-inset-top));right:18px}
+
+/* profile (settings page) */
+.prof{display:flex;align-items:center;gap:14px;padding:18px}
+.avatar{width:56px;height:56px;border-radius:50%;display:flex;align-items:center;justify-content:center;
+  font-size:22px;font-weight:800;color:#fff;flex:none;background:#7F5AF0}
+.prof .t{flex:1;min-width:0}
+.prof .t b{font-size:15px;font-weight:700}
+.prof input{width:100%;background:var(--panel2);border:1px solid var(--line);border-radius:10px;
+  padding:9px 12px;font-weight:700;font-size:15px;margin-top:6px}
+.adots{display:flex;gap:9px;margin-top:10px}
+.adot{width:26px;height:26px;border-radius:50%;transition:transform .15s var(--spring);cursor:pointer}
+.adot:active{transform:scale(.85)}
+.adot.on{outline:2px solid #fff;outline-offset:2px}
+
+/* 3D scan */
+.seg{display:flex;gap:8px;margin:4px 0 14px}
+.segbtn{flex:1;padding:10px;border-radius:12px;font-weight:800;font-size:13px;
+  background:rgba(255,255,255,.06);border:1px solid rgba(255,255,255,.09);color:var(--tx2)}
+.segbtn.on{background:#F5F5F7;color:#0A0A0D}
+#threeWrap{position:relative;border-radius:18px;overflow:hidden;height:300px;touch-action:none;
+  background:radial-gradient(120% 120% at 50% 0%,#1e1e28,#0a0a0d);border:1px solid var(--line)}
+#threeWrap canvas{position:absolute;inset:0;width:100%;height:100%;display:block;touch-action:none}
+.threehint{position:absolute;bottom:10px;left:0;right:0;text-align:center;font-size:11.5px;font-weight:700;color:var(--tx3);pointer-events:none}
+.scanthumbs{display:flex;gap:12px;margin-top:12px}
+.scanthumbs img{width:88px;aspect-ratio:1.586;object-fit:cover;border-radius:10px;border:1px solid var(--line)}
+.scanthumbs .cap{font-size:10px;font-weight:800;color:var(--tx3);text-align:center;margin-top:4px;letter-spacing:.08em}
 </style>
 </head>
 <body>
@@ -398,13 +425,14 @@ header.home .sub{font-size:14px;color:var(--tx2);font-weight:600;margin-top:7px}
 <symbol id="i-bell" viewBox="0 0 24 24"><path d="M6.5 9a5.5 5.5 0 0 1 11 0c0 6.5 2.5 7.5 2.5 7.5H4S6.5 15.5 6.5 9"/><path d="M10.5 20.5a1.7 1.7 0 0 0 3 0"/></symbol>
 <symbol id="i-coffee" viewBox="0 0 24 24"><path d="M17 8.5h1.5a3 3 0 0 1 0 6H17"/><path d="M4 8.5h13V15a4 4 0 0 1-4 4H8a4 4 0 0 1-4-4V8.5Z"/><path d="M8 3.5v2M12 3.5v2"/></symbol>
 <symbol id="i-spark" viewBox="0 0 24 24"><path d="M12 3.5 13.8 9l5.7 1-4.3 3.7 1.2 5.8L12 16.6l-4.4 2.9 1.2-5.8L4.5 10l5.7-1L12 3.5Z"/></symbol>
+<symbol id="i-cube" viewBox="0 0 24 24"><path d="M12 2.5 21 7.5v9l-9 5-9-5v-9l9-5Z"/><path d="M12 12.5 21 7.5M12 12.5 3 7.5M12 12.5v9"/></symbol>
 <symbol id="i-cardstack" viewBox="0 0 24 24"><rect x="3" y="8" width="15" height="10" rx="2.5"/><path d="M7.5 5.5h13a1.5 1.5 0 0 1 1.5 1.5v9"/></symbol>
 </svg>
 
 <!-- ============ HOME ============ -->
 <div id="scrHome">
   <header class="home">
-    <div><div class="eyebrow">Kadi</div><h1 style="margin-top:6px">Wallet</h1><div class="sub" id="homeCount"></div></div>
+    <div><div class="eyebrow" id="homeHi">Kadi</div><h1 style="margin-top:6px">Wallet</h1><div class="sub" id="homeCount"></div></div>
     <div class="hbtns">
       <button class="cbtn" id="btnSettings" title="Settings"><svg class="ic"><use href="#i-gear"/></svg></button>
       <button class="cbtn" id="btnAdd" title="Add card"><svg class="ic"><use href="#i-plus"/></svg></button>
@@ -463,6 +491,7 @@ header.home .sub{font-size:14px;color:var(--tx2);font-weight:600;margin-top:7px}
   <div class="quick">
     <button class="btn ghost" id="dFlipBtn" style="padding:11px 18px;font-size:13.5px"><svg class="ic" style="width:15px;height:15px"><use href="#i-flip"/></svg>Flip</button>
     <button class="btn ghost" id="dFavBtn" style="padding:11px 18px;font-size:13.5px"><svg class="ic" style="width:15px;height:15px"><use href="#i-star"/></svg>Favorite</button>
+    <button class="btn ghost" id="d3dBtn" style="padding:11px 18px;font-size:13.5px"><svg class="ic" style="width:15px;height:15px"><use href="#i-cube"/></svg>3D</button>
   </div>
   <div class="infobox glass" id="dRows"></div>
   <div style="margin-top:24px"><button class="btn danger w" id="dDelete"><svg class="ic" style="width:16px;height:16px"><use href="#i-trash"/></svg>Remove card</button></div>
@@ -474,6 +503,13 @@ header.home .sub{font-size:14px;color:var(--tx2);font-weight:600;margin-top:7px}
     <button class="cbtn" data-close="vSettings"><svg class="ic"><use href="#i-chl"/></svg></button>
     <h1>Settings</h1>
   </div>
+  <div class="setgroup"><h3>Profile</h3><div class="glass prof">
+    <div class="avatar" id="profAvatar">K</div>
+    <div class="t"><b id="profTitle">Your nook</b>
+      <input id="profName" placeholder="Your name" maxlength="24" autocomplete="off">
+      <div class="adots" id="profDots"></div>
+    </div>
+  </div></div>
   <div class="setgroup"><h3>Security</h3><div class="glass">
     <button class="srow" id="sPin"><svg class="ic sic"><use href="#i-key"/></svg><div class="t"><b>Change passcode</b><span>Re-wraps the vault key</span></div><svg class="ic chev" style="width:16px;height:16px"><use href="#i-chr"/></svg></button>
     <div class="srow" style="cursor:default"><svg class="ic sic"><use href="#i-clock"/></svg><div class="t"><b>Auto-lock</b><span>Locks after inactivity</span></div>
@@ -484,7 +520,9 @@ header.home .sub{font-size:14px;color:var(--tx2);font-weight:600;margin-top:7px}
   </div></div>
   <div class="setgroup"><h3>App</h3><div class="glass">
     <button class="srow" id="sInstall"><svg class="ic sic"><use href="#i-phone"/></svg><div class="t"><b>Install to Home Screen</b><span id="installSub">Runs standalone, works offline</span></div><svg class="ic chev" style="width:16px;height:16px"><use href="#i-chr"/></svg></button>
-    <button class="srow" id="sSw"><svg class="ic sic"><use href="#i-wifioff"/></svg><div class="t"><b>Offline pack</b><span id="swSub">Get the service worker file</span></div><span class="nettag no" id="swTag">SETUP</span></button>
+    <button class="srow" id="sSw"><svg class="ic sic"><use href="#i-wifioff"/></svg><div class="t"><b>Offline pack</b><span id="swSub">Bundled with the app</span></div><span class="nettag no" id="swTag">SETUP</span></button>
+    <div class="srow" style="cursor:default"><svg class="ic sic"><use href="#i-spark"/></svg><div class="t"><b>3D showcase</b><span>Card tilt, holo &amp; the 3D viewer</span></div>
+      <select id="sFx"><option value="1">On</option><option value="0">Off</option></select></div>
   </div></div>
   <div class="setgroup"><h3>Your data</h3><div class="glass">
     <button class="srow" id="sExport"><svg class="ic sic"><use href="#i-down"/></svg><div class="t"><b>Encrypted backup</b><span>One file, sealed with your passcode</span></div><svg class="ic chev" style="width:16px;height:16px"><use href="#i-chr"/></svg></button>
@@ -519,6 +557,7 @@ header.home .sub{font-size:14px;color:var(--tx2);font-weight:600;margin-top:7px}
         <button class="snapslot" id="snapF"><svg class="ic"><use href="#i-cam"/></svg>Front</button>
         <button class="snapslot" id="snapB"><svg class="ic"><use href="#i-cam"/></svg>Back</button>
       </div>
+      <button class="btn ghost w" id="btnScan3d" style="margin-top:12px"><svg class="ic" style="width:16px;height:16px"><use href="#i-cube"/></svg>Scan card in 3D</button>
     </div>
     <div class="fgroup"><h3>Finish</h3><div class="swrow" id="aStyles"></div></div>
   </div>
@@ -537,6 +576,33 @@ header.home .sub{font-size:14px;color:var(--tx2);font-weight:600;margin-top:7px}
     <button class="camside" id="camGal" title="From gallery"><svg class="ic" style="width:20px;height:20px"><use href="#i-img"/></svg></button>
     <button class="shutter" id="camShot"><i></i></button>
     <button class="camside" id="camDone" title="Done"><svg class="ic" style="width:20px;height:20px"><use href="#i-check"/></svg></button>
+  </div>
+</div>
+
+<!-- ============ 3D SCAN ============ -->
+<div class="fmodal" id="vScan3d">
+  <div class="fm-head">
+    <button class="cbtn" id="scanClose"><svg class="ic"><use href="#i-x"/></svg></button>
+    <h1>3D Scan</h1>
+  </div>
+  <div class="fm-scroll">
+    <div class="seg" id="scanSeg">
+      <button class="segbtn on" data-side="front">Front</button>
+      <button class="segbtn" data-side="back">Back</button>
+    </div>
+    <div class="camwrap" id="scanLive">
+      <video id="scanVideo" autoplay playsinline muted></video>
+      <div class="camframe"><i></i><i></i><i></i><i></i></div>
+      <div class="cammsg" id="scanMsg">Line up the FRONT inside the frame</div>
+      <div class="flashfx" id="scanFlash"></div>
+    </div>
+    <div id="threeWrap" class="hide"><div class="threehint">Drag to spin &middot; rendered on-device</div></div>
+    <div class="scanthumbs hide" id="scanThumbs"></div>
+    <div class="frow" style="margin-top:14px"><div class="hint"><svg class="ic"><use href="#i-shield"/></svg>Photos never leave this device &mdash; they become the card's 3D skin.</div></div>
+  </div>
+  <div class="fm-foot" style="display:flex;gap:10px">
+    <button class="btn ghost" id="scanShot" style="flex:1">Capture</button>
+    <button class="btn" id="scanUse" style="flex:1" disabled>Use scans</button>
   </div>
 </div>
 
@@ -640,7 +706,7 @@ async function encJson(key,obj){const iv=crypto.getRandomValues(new Uint8Array(1
 async function decJson(key,box){return td(await subtle.decrypt({name:'AES-GCM',iv:ub64(box.iv)},key,ub64(box.ct)))}
 
 let V=null;
-const S={key:null,raw:null,pin:null,cards:[],pays:[],settings:{autolock:60,mask:true},ui:{activeId:null}};
+const S={key:null,raw:null,pin:null,cards:[],pays:[],settings:{autolock:60,mask:true,name:'',avatar:0,fx3d:true},ui:{activeId:null}};
 const loadVault=()=>{try{V=JSON.parse(localStorage.getItem('kadi.vault'))}catch(e){V=null}};
 const saveVault=()=>localStorage.setItem('kadi.vault',JSON.stringify(V));
 const loadSettings=()=>{try{Object.assign(S.settings,JSON.parse(localStorage.getItem('kadi.settings')||'{}'))}catch(e){}};
@@ -776,6 +842,7 @@ function renderDots(){
   $$('#dots i').forEach(d=>d.onclick=()=>{CAR.target=+d.dataset.i;haptic(4)});
 }
 function setTilt(el,nx,ny){
+  if(!S.settings.fx3d)return;
   if(CAR.tiltEl&&CAR.tiltEl!==el){
     CAR.tiltEl.querySelector('.tilt').style.transform='';
     CAR.tiltEl.querySelectorAll('.cglare,.cface').forEach(f=>{f.style.removeProperty('--gl');f.style.removeProperty('--ho')});
@@ -794,7 +861,7 @@ function frame(){
     CAR.pos+=(CAR.target-CAR.pos)*.14;
     if(Math.abs(CAR.target-CAR.pos)<.0006)CAR.pos=CAR.target;
     stageLayout();
-    if(!CAR.hover&&!CAR.drag){
+    if(!CAR.hover&&!CAR.drag&&S.settings.fx3d){
       const el=$(`#stageInner .wcard[data-i="${CAR.lastAct}"]`);
       if(el){const t=performance.now()/1000;
         el.querySelector('.tilt').style.transform=`rotateY(${(Math.sin(t*1.15)*1.4).toFixed(2)}deg) rotateX(${(Math.cos(t*.85)*1).toFixed(2)}deg)`;
@@ -858,6 +925,7 @@ function closePush(id){$('#'+id).classList.remove('on');
 function renderHome({entrance=false}={}){
   const n=S.cards.length;
   $('#homeCount').textContent=n?`${n} card${n>1?'s':''} \u00b7 sealed on this device`:'Nothing here yet';
+  renderProfile();
   const z=$('#stageZone');
   if(!n){
     z.classList.add('hide');$('.cap').classList.add('hide');$('.actions').classList.add('hide');
@@ -964,6 +1032,7 @@ function renderDetailRows(){
 
 /* generic tilt for static cards */
 function bindTiltBox(box){
+  if(!S.settings.fx3d)return;
   const card=box.querySelector('.card3d');if(!card)return;
   card.addEventListener('pointermove',e=>{
     const r=card.getBoundingClientRect(),nx=(e.clientX-r.left)/r.width-.5,ny=(e.clientY-r.top)/r.height-.5;
@@ -1130,7 +1199,7 @@ function sheetOpen(html){
   grab.addEventListener('pointerup',end);grab.addEventListener('pointercancel',end);
   return r.querySelector('.sheet');
 }
-function sheetClose(){const r=$('#sheetRoot');r.classList.remove('on');r.innerHTML=''}
+function sheetClose(){disposeThree();const r=$('#sheetRoot');r.classList.remove('on');r.innerHTML=''}
 let paySel=null;
 function openPay(preset){
   const cards=preset?[preset]:S.cards.slice(0,8);
@@ -1191,7 +1260,16 @@ function burst(){
   }
 }
 /* connector for pages/apps on this origin */
-let pendingReq=null;
+let pendingReq=null,pendingDeep=null;
+function runDeep(){
+  if(!pendingDeep)return;
+  const d=pendingDeep;pendingDeep=null;
+  try{history.replaceState(null,'',location.pathname)}catch(e){}
+  setTimeout(()=>{
+    if(d.pay){if(S.cards.length)openPay(S.cards[0]);else toast('Add a card first','cardstack')}
+    else openAdd(null);
+  },650);
+}
 window.Kadi={
   requestPayment({merchant='A merchant',amount='',note}={}){
     if(!S.key){pendingReq={merchant,amount,note};lockApp();return new Promise(()=>{})}
@@ -1286,6 +1364,7 @@ function resetLockTimer(){
 function lockApp(){
   S.key=null;S.raw=null;S.pin=null;S.cards=[];S.pays=[];
   clearTimeout(lockTimer);sheetClose();
+  closeScan();
   ['vDetail','vSettings','vAdd','vCam'].forEach(id=>$('#'+id).classList.remove('on'));
   $('#scrHome').classList.remove('behind');
   showLock();
@@ -1320,6 +1399,7 @@ async function tryUnlock(pin){
     $('#scrLock').classList.remove('on');
     renderHome({entrance:true});resetLockTimer();
     toast('All '+S.cards.length+' cards accounted for','shield');
+    runDeep();
     if(pendingReq){const p=pendingReq;pendingReq=null;setTimeout(()=>window.Kadi.requestPayment(p),600)}
   }catch(e){
     haptic([40,60,40]);fails++;
@@ -1355,6 +1435,29 @@ document.addEventListener('visibilitychange',()=>{
  $('#sMaskSel').value=S.settings.mask?'1':'0';
  $('#sMaskSel').onchange=e=>{S.settings.mask=e.target.value==='1';saveSettings();renderHome();toast(S.settings.mask?'Numbers masked':'Numbers visible on showcase','eyeoff')};
  $('#sLockNow').onclick=()=>lockApp();
+ /* ---- profile + showcase (same page) ---- */
+ function syncSettingsUI(){
+   $('#sAutolock').value=String(S.settings.autolock);
+   $('#sMaskSel').value=S.settings.mask?'1':'0';
+   $('#sFx').value=S.settings.fx3d?'1':'0';
+   if(document.activeElement!==$('#profName'))$('#profName').value=S.settings.name||'';
+   renderProfile();
+ }
+ const AVATARS=['#7F5AF0','#FF7A45','#0FB5AE','#EDBE55','#F2A5C0','#0A84FF'];
+ function renderProfile(){
+   const nm=(S.settings.name||'').trim();
+   $('#homeHi').textContent=nm?('Hi, '+nm):'Kadi';
+   const av=$('#profAvatar');
+   av.textContent=((nm||'K')[0]||'K').toUpperCase();
+   av.style.background=AVATARS[(S.settings.avatar||0)%AVATARS.length];
+   $('#profTitle').innerHTML=nm?esc(nm)+'\u2019s nook':'Your nook';
+   $('#profDots').innerHTML=AVATARS.map((c,i)=>`<i class="adot ${i===(S.settings.avatar||0)?'on':''}" data-a="${i}" style="background:${c}"></i>`).join('');
+   $$('#profDots .adot').forEach(d=>d.onclick=()=>{S.settings.avatar=+d.dataset.a;saveSettings();renderProfile();haptic(5)});
+ }
+ $('#profName').onchange=e=>{S.settings.name=e.target.value.trim().slice(0,24);saveSettings();renderProfile();
+   toast(S.settings.name?('Welcome to the nook, '+S.settings.name):'Name cleared','check')};
+ $('#sFx').onchange=e=>{S.settings.fx3d=e.target.value==='1';saveSettings();
+   toast(S.settings.fx3d?'3D showcase on':'Calm mode \u2014 effects off','spark')};
  $('#sPin').onclick=async()=>{
   if(await pinGate('Change passcode','Confirm the current one')===null)return;
   const np=await createPinFlow();if(np===null)return;
@@ -1392,63 +1495,224 @@ document.addEventListener('visibilitychange',()=>{
   localStorage.removeItem('kadi.vault');localStorage.removeItem('kadi.settings');
   location.reload();
 };
- $('#sSw').onclick=()=>{
-  const sw=`const CACHE='kadi-v2';
-self.addEventListener('install',e=>{e.waitUntil(caches.open(CACHE).then(c=>c.addAll(['./'])).then(()=>self.skipWaiting()))});
-self.addEventListener('activate',e=>{e.waitUntil(caches.keys().then(ks=>Promise.all(ks.filter(k=>k!==CACHE).map(k=>caches.delete(k)))).then(()=>self.clients.claim()))});
-self.addEventListener('fetch',e=>{if(e.request.method!=='GET')return;
-e.respondWith(caches.match(e.request,{ignoreSearch:true}).then(r=>r||fetch(e.request).then(res=>{const cp=res.clone();caches.open(CACHE).then(c=>c.put(e.request,cp));return res}).catch(()=>caches.match('./'))))});`;
-  const blob=new Blob([sw],{type:'text/javascript'});
-  const a=document.createElement('a');a.href=URL.createObjectURL(blob);a.download='sw.js';a.click();
-  setTimeout(()=>URL.revokeObjectURL(a.href),3000);
-  toast('Saved sw.js \u2014 host it beside this file','wifioff');
-};
+ $('#sSw').onclick=async()=>{
+   if('serviceWorker' in navigator&&navigator.serviceWorker.controller){toast('Offline pack active \u2014 try airplane mode','wifioff');return}
+   try{await navigator.serviceWorker.register('sw.js');swStatus();toast('Offline pack activated','wifioff')}
+   catch(e){toast('Needs HTTPS or localhost to activate','wifioff')}
+ };
 function swStatus(){
   const on='serviceWorker' in navigator&&navigator.serviceWorker.controller;
   $('#swTag').textContent=on?'ON':'SETUP';$('#swTag').className='nettag '+(on?'ok':'no');
-  $('#swSub').textContent=on?'Offline shell active \u2014 works with zero internet':'Get sw.js, host it beside this file';
+   $('#swSub').textContent=on?'Offline shell active \u2014 works with zero internet':'Pack bundled \u2014 activates automatically';
 }
 window.addEventListener('online',()=>toast('Back online \u2014 the vault didn\u2019t notice','spark'));
 window.addEventListener('offline',()=>toast('Offline. Everything still works.','wifioff'));
 
 /* ============================================================
+   3D SCAN (camera) + THREE.JS TOOLS
+   three.js lazy-loads only when a 3D view opens; everything
+   renders on-device and photos never leave the vault.
+============================================================ */
+const SCAN={stream:null,side:'front',front:null,back:null,three:null};
+let threePromise=null;
+function loadThree(){
+  if(window.THREE)return Promise.resolve(window.THREE);
+  if(threePromise)return threePromise;
+  threePromise=new Promise((res,rej)=>{
+    const s=document.createElement('script');
+    s.src='https://cdn.jsdelivr.net/npm/three@0.149.0/build/three.min.js';
+    s.onload=()=>res(window.THREE);
+    s.onerror=()=>rej(new Error('cdn'));
+    setTimeout(()=>rej(new Error('timeout')),15000);
+    document.head.appendChild(s);
+  }).catch(e=>{threePromise=null;throw e});
+  return threePromise;
+}
+function openScan(){
+  SCAN.side='front';SCAN.front=A.draft.fimg||null;SCAN.back=A.draft.bimg||null;
+  syncScanSeg();paintScanThumbs();
+  $('#scanLive').classList.remove('hide');$('#threeWrap').classList.add('hide');
+  $('#scanUse').disabled=!(SCAN.front&&SCAN.back);
+  $('#vScan3d').classList.add('on');
+  startScanCam();
+}
+function closeScan(){stopScanCam();disposeThree();$('#vScan3d').classList.remove('on')}
+async function startScanCam(){
+  const v=$('#scanVideo');
+  try{
+    SCAN.stream=await navigator.mediaDevices.getUserMedia({video:{facingMode:'environment',width:{ideal:1920}}});
+    v.srcObject=SCAN.stream;
+    $('#scanMsg').textContent=SCAN.side==='front'?'Line up the FRONT inside the frame':'Flip it \u2014 now the BACK';
+  }catch(e){
+    $('#scanMsg').textContent='No camera \u2014 pick from gallery';
+    toast('Camera unavailable \u2014 pick from gallery','cam');
+    setTimeout(()=>scanPick(),500);
+  }
+}
+function stopScanCam(){if(SCAN.stream){SCAN.stream.getTracks().forEach(t=>t.stop());SCAN.stream=null}}
+function syncScanSeg(){$$('#scanSeg .segbtn').forEach(b=>b.classList.toggle('on',b.dataset.side===SCAN.side))}
+$$('#scanSeg .segbtn').forEach(b=>b.onclick=()=>{SCAN.side=b.dataset.side;syncScanSeg();
+  $('#scanMsg').textContent=SCAN.side==='front'?'Line up the FRONT inside the frame':'Flip it \u2014 now the BACK';haptic(5)});
+function captureFrame(v){
+  const vw=v.videoWidth,vh=v.videoHeight;if(!vw)return null;
+  const AR=1.586;let cw=vw,ch=cw/AR;if(ch>vh){ch=vh;cw=vh*AR}
+  const c=document.createElement('canvas');c.width=960;c.height=Math.round(960/AR);
+  c.getContext('2d').drawImage(v,(vw-cw)/2,(vh-ch)/2,cw,ch,0,0,c.width,c.height);
+  return c.toDataURL('image/jpeg',.8);
+}
+ $('#scanShot').onclick=()=>{
+  const v=$('#scanVideo');
+  if(!v||!v.videoWidth){toast('Camera not ready','cam');return}
+  $('#scanFlash').style.opacity=.85;setTimeout(()=>$('#scanFlash').style.opacity=0,120);
+  const img=captureFrame(v);if(!img)return;
+  if(SCAN.side==='front'){SCAN.front=img;SCAN.side='back';toast('Front scanned \u2014 flip the card','check')}
+  else{SCAN.back=img;toast('Back scanned \u2014 building 3D','check')}
+  haptic([10,40,10]);syncScanSeg();paintScanThumbs();showThree();
+  $('#scanUse').disabled=!(SCAN.front&&SCAN.back);
+ };
+function scanPick(){
+  const inp=$('#fileImg');
+  inp.onchange=()=>{const f=inp.files[0];inp.value='';if(!f)return;
+    const fr=new FileReader();
+    fr.onload=async()=>{
+      const img=await shrink(fr.result,960,.8);
+      if(SCAN.side==='front')SCAN.front=img;else SCAN.back=img;
+      paintScanThumbs();showThree();
+      $('#scanUse').disabled=!(SCAN.front&&SCAN.back);
+      toast('Scan saved','check')};
+    fr.readAsDataURL(f)};
+  inp.click();
+}
+function paintScanThumbs(){
+  const box=$('#scanThumbs');
+  const items=[['FRONT',SCAN.front],['BACK',SCAN.back]].filter(x=>x[1]);
+  box.classList.toggle('hide',!items.length);
+  box.innerHTML=items.map(([t,src])=>`<div><img src="${src}" alt="${t} scan"><div class="cap">${t}</div></div>`).join('');
+}
+ $('#scanClose').onclick=closeScan;
+ $('#scanUse').onclick=()=>{
+  if(!(SCAN.front&&SCAN.back)){toast('Capture both sides first','cam');return}
+  A.draft.fimg=SCAN.front;A.draft.bimg=SCAN.back;
+  paintSnaps();paintPreview();closeScan();
+  toast('3D scans attached to the card','check');
+ };
+ $('#btnScan3d').onclick=()=>{grabFields();openScan()};
+ $('#d3dBtn').onclick=()=>{const c=S.cards.find(x=>x.id===D.id);if(c)openViewer({card:c})};
+async function showThree(){
+  if(!(SCAN.front&&SCAN.back))return;
+  $('#scanLive').classList.add('hide');$('#threeWrap').classList.remove('hide');
+  try{await loadThree()}catch(e){toast('3D needs internet once \u2014 photos are saved anyway','wifioff');return}
+  mountThree($('#threeWrap'),{front:SCAN.front,back:SCAN.back});
+}
+async function openViewer({front=null,back=null,card=null}={}){
+  const f=front||(card&&card.fimg)||null,b=back||(card&&card.bimg)||null;
+  const sh=sheetOpen(`<h3>Card in 3D</h3><div class="msub">${card?esc(card.name):'Rendered on-device with three.js'}</div>
+    <div id="threeWrap" style="margin-top:14px"><div class="threehint">Drag to spin</div></div>
+    <div class="paynote">${icon('shield','width:13px;height:13px')}Rendered locally. Nothing uploaded.</div>
+    <div id="threeErr"></div>`);
+  let F=f,B=b;
+  if(!F||!B){const g=cardTexture(card);F=F||g;B=B||g}
+  try{await loadThree()}catch(e){
+    sh.querySelector('#threeErr').innerHTML=`<div class="paynote">3D needs internet once to fetch three.js \u2014 try again online.</div>`;return}
+  if(!document.body.contains(sh))return;
+  mountThree(sh.querySelector('#threeWrap'),{front:F,back:B});
+}
+function cardTexture(card){
+  const st=styleOf(card?card.style:'noir');
+  const c=document.createElement('canvas');c.width=1024;c.height=Math.round(1024/1.586);
+  const x=c.getContext('2d');
+  const g=x.createLinearGradient(0,0,c.width,c.height);g.addColorStop(0,st.g[0]);g.addColorStop(1,st.g[1]);
+  x.fillStyle=g;x.fillRect(0,0,c.width,c.height);
+  x.fillStyle=st.ink;
+  x.font='700 54px Manrope,sans-serif';
+  x.fillText(((card&&(card.org||card.name))||'KADI').slice(0,26),64,124);
+  x.font='500 60px monospace';
+  x.fillText('\u2022\u2022\u2022\u2022 '+(((card&&card.num)||'').replace(/\D/g,'').slice(-4)||'\u2022\u2022\u2022\u2022'),64,c.height-110);
+  return c.toDataURL('image/jpeg',.85);
+}
+function mountThree(wrap,{front,back}){
+  disposeThree();
+  if(!wrap)return;
+  const W=wrap.clientWidth||320,H=300;
+  let renderer;
+  try{renderer=new THREE.WebGLRenderer({antialias:true,alpha:true})}
+  catch(e){toast('WebGL unavailable on this device','x');return}
+  renderer.setPixelRatio(Math.min(window.devicePixelRatio||1,2));renderer.setSize(W,H);
+  wrap.prepend(renderer.domElement);
+  const scene=new THREE.Scene();
+  const cam=new THREE.PerspectiveCamera(32,W/H,.1,50);cam.position.set(0,.4,5.4);cam.lookAt(0,0,0);
+  scene.add(new THREE.AmbientLight(0xffffff,.85));
+  const key=new THREE.DirectionalLight(0xffffff,1.1);key.position.set(2.5,3,4);scene.add(key);
+  const rim=new THREE.DirectionalLight(0x7f5af0,.7);rim.position.set(-3,-1,-2);scene.add(rim);
+  const tex=u=>{const t=new THREE.TextureLoader().load(u);
+    if(THREE.SRGBColorSpace&&'colorSpace' in t)t.colorSpace=THREE.SRGBColorSpace;
+    else t.encoding=THREE.sRGBEncoding;return t};
+  const CW=3.4,CH=CW/1.586,R=.22,shape=new THREE.Shape();
+  shape.moveTo(-CW/2+R,-CH/2);
+  shape.lineTo(CW/2-R,-CH/2);shape.absarc(CW/2-R,-CH/2+R,R,-Math.PI/2,0);
+  shape.lineTo(CW/2,CH/2-R);shape.absarc(CW/2-R,CH/2-R,R,0,Math.PI/2);
+  shape.lineTo(-CW/2+R,CH/2);shape.absarc(-CW/2+R,CH/2-R,R,Math.PI/2,Math.PI);
+  shape.lineTo(-CW/2,-CH/2+R);shape.absarc(-CW/2+R,-CH/2+R,R,Math.PI,Math.PI*1.5);
+  const norm=geo=>{geo.computeBoundingBox();const bb=geo.boundingBox,
+    sx=CW/(bb.max.x-bb.min.x),sy=CH/(bb.max.y-bb.min.y),uv=geo.attributes.uv;
+    for(let i=0;i<uv.count;i++)uv.setXY(i,(uv.getX(i)-bb.min.x)*sx,(uv.getY(i)-bb.min.y)*sy);
+    uv.needsUpdate=true;return geo};
+  const grp=new THREE.Group();scene.add(grp);
+  const core=new THREE.Mesh(
+    new THREE.ExtrudeGeometry(shape,{depth:.06,bevelEnabled:true,bevelThickness:.015,bevelSize:.015,bevelSegments:2,curveSegments:24}),
+    new THREE.MeshStandardMaterial({color:0x17171c,roughness:.5,metalness:.35}));
+  core.geometry.center();grp.add(core);
+  const fmesh=new THREE.Mesh(norm(new THREE.ShapeGeometry(shape,24)),
+    new THREE.MeshStandardMaterial({map:tex(front),roughness:.42,metalness:.08}));
+  fmesh.position.z=.048;grp.add(fmesh);
+  const bmesh=new THREE.Mesh(norm(new THREE.ShapeGeometry(shape,24)),
+    new THREE.MeshStandardMaterial({map:tex(back),roughness:.42,metalness:.08}));
+  bmesh.rotation.y=Math.PI;bmesh.position.z=-.048;grp.add(bmesh);
+  grp.rotation.x=-.06;
+  let raf=0,drag=false,px=0,py=0,idle=0;
+  const el=renderer.domElement;
+  el.addEventListener('pointerdown',e=>{drag=true;px=e.clientX;py=e.clientY;try{el.setPointerCapture(e.pointerId)}catch(_){}});
+  el.addEventListener('pointermove',e=>{if(!drag)return;
+    grp.rotation.y+=(e.clientX-px)*.012;
+    grp.rotation.x=clip(grp.rotation.x+(e.clientY-py)*.008,-.9,.9);
+    px=e.clientX;py=e.clientY;idle=0});
+  const up=()=>{drag=false};el.addEventListener('pointerup',up);el.addEventListener('pointercancel',up);
+  const loop=()=>{raf=requestAnimationFrame(loop);
+    if(!drag&&S.settings.fx3d){idle++;if(idle>40)grp.rotation.y+=.008}
+    renderer.render(scene,cam)};
+  raf=requestAnimationFrame(loop);
+  SCAN.three={renderer,scene,raf,el};
+  setTimeout(()=>{if(!SCAN.three||SCAN.three.el!==el)return;
+    const w=wrap.clientWidth;if(w&&Math.abs(w-W)>4){renderer.setSize(w,H);cam.aspect=w/H;cam.updateProjectionMatrix()}},120);
+}
+function disposeThree(){
+  const t=SCAN.three;if(!t)return;SCAN.three=null;
+  try{cancelAnimationFrame(t.raf)}catch(e){}
+  try{t.el.remove()}catch(e){}
+  try{t.scene.traverse(o=>{if(o.geometry)o.geometry.dispose();
+    if(o.material)(Array.isArray(o.material)?o.material:[o.material]).forEach(m=>{if(m.map)m.map.dispose();m.dispose()})})}catch(e){}
+  try{t.renderer.dispose()}catch(e){}
+}
+
+/* ============================================================
    PWA
 ============================================================ */
-let deferredPrompt=null;
-(function(){
-  try{
-    const c=document.createElement('canvas');c.width=c.height=512;const x=c.getContext('2d');
-    const rr=(a,b,w,h,r)=>{x.beginPath();x.roundRect?x.roundRect(a,b,w,h,r):x.rect(a,b,w,h)};
-    x.fillStyle='#0A0A0D';rr(0,0,512,512,116);x.fill();
-    x.save();x.translate(256,256);x.rotate(-0.12);
-    x.fillStyle='#23232B';x.strokeStyle='rgba(255,255,255,.25)';x.lineWidth=10;
-    rr(-150,-60,300,190,34);x.fill();x.stroke();x.restore();
-    x.save();x.translate(256,268);x.rotate(0.09);
-    const g=x.createLinearGradient(-150,-95,150,95);g.addColorStop(0,'#7F5AF0');g.addColorStop(1,'#2E1A78');
-    x.fillStyle=g;x.strokeStyle='rgba(255,255,255,.45)';x.lineWidth=10;
-    rr(-150,-95,300,190,34);x.fill();x.stroke();
-    x.fillStyle='url(#none)';
-    x.fillStyle='#F0C75E';rr(-96,-30,44,32,8);x.fill();
-    x.fillStyle='rgba(255,255,255,.92)';x.font='700 34px Manrope,sans-serif';x.fillText('\u2022\u2022\u2022\u2022  4 2 4 2',-96,58);
-    x.restore();
-    const icon=c.toDataURL('image/png');
-    const man={name:'Kadi',short_name:'Kadi',description:'Every card you carry, sealed on your device.',
-      start_url:location.href,display:'standalone',background_color:'#0A0A0D',theme_color:'#0A0A0D',
-      icons:[{src:icon,sizes:'512x512',type:'image/png',purpose:'any'},{src:icon,sizes:'192x192',type:'image/png'}]};
-    const l=document.createElement('link');l.rel='manifest';
-    l.href='data:application/manifest+json,'+encodeURIComponent(JSON.stringify(man));
-    document.head.appendChild(l);
-    const al=document.createElement('link');al.rel='apple-touch-icon';al.href=icon;document.head.appendChild(al);
-  }catch(e){}
-})();
+let deferredPrompt=null,installed=false;
+try{if(window.matchMedia&&matchMedia('(display-mode: standalone)').matches){installed=true;
+  $('#installSub').textContent='Installed \u2014 running as an app'}}catch(e){}
 window.addEventListener('beforeinstallprompt',e=>{
   e.preventDefault();deferredPrompt=e;
-  $('#installSub').textContent='Ready \u2014 tap to install';
+  if(!installed)$('#installSub').textContent='Ready \u2014 tap to install';
 });
+window.addEventListener('appinstalled',()=>{installed=true;deferredPrompt=null;
+  $('#installSub').textContent='Installed \u2014 running as an app';
+  toast('Kadi installed \u2014 see you on the home screen','phone')});
  $('#sInstall').onclick=async()=>{
+  if(installed){toast('Already running as an app','phone');return}
   if(deferredPrompt){deferredPrompt.prompt();const r=await deferredPrompt.userChoice;
     toast(r.outcome==='accepted'?'Installed \u2014 it lives on your home screen now':'Maybe later','phone');deferredPrompt=null}
-  else toast('Browser menu \u2192 \u201cAdd to Home Screen\u201d','phone');
+  else if(/iPad|iPhone|iPod/.test(navigator.userAgent))toast('Share \u2192 \u201cAdd to Home Screen\u201d','phone');
+  else toast('Browser menu \u2192 \u201cInstall app\u201d or \u201cAdd to Home Screen\u201d','phone');
 };
 if('serviceWorker' in navigator){try{navigator.serviceWorker.register('sw.js').then(swStatus).catch(()=>{})}catch(e){}}
 
@@ -1463,6 +1727,7 @@ function showOnboard(){
     $('#scrOnb').classList.remove('on');
     renderHome({entrance:true});resetLockTimer();haptic([10,40,10]);
     toast('Vault created \u2014 only your passcode opens it','shield');
+    runDeep();
   };
   $('#obRestore').onclick=()=>$('#fileImport').click();
 }
@@ -1473,6 +1738,7 @@ document.addEventListener('keydown',e=>{
     if($('#lightbox').classList.contains('on'))return $('#lightbox').classList.remove('on');
     if($('#sheetRoot').classList.contains('on'))return sheetClose();
     if($('#vCam').classList.contains('on')){stopCam();return $('#vCam').classList.remove('on')}
+    if($('#vScan3d').classList.contains('on'))return closeScan();
     if($('#vAdd').classList.contains('on'))return $('#vAdd').classList.remove('on');
     const p=$$('.push.on').pop();if(p)closePush(p.id);
   }
@@ -1483,7 +1749,11 @@ window.addEventListener('resize',()=>{
 });
 (function init(){
   if(!needCrypto())return;
-  loadSettings();loadVault();
+  loadSettings();syncSettingsUI();loadVault();
+  try{const q=new URLSearchParams(location.search);
+    if(q.has('add'))pendingDeep={add:true};
+    else if(q.has('pay'))pendingDeep={pay:true};
+  }catch(e){}
   CAR.spacing=Math.min(window.innerWidth*.42,150);
   bindStage();requestAnimationFrame(frame);
   if(V)showLock();else showOnboard();
