@@ -657,6 +657,7 @@ header.home .sub{font-size:14px;color:var(--tx2);font-weight:600;margin-top:7px}
   <div class="pin-dots" id="lockDots"></div>
   <div class="keypad" id="lockPad"></div>
   <div class="lock-msg" id="lockMsg"></div>
+  <button class="pin-cancel" id="lockWipe">Forgot passcode? Erase &amp; start over</button>
   <div class="lock-foot">SEALED &middot; AES-256 &middot; THIS DEVICE ONLY</div>
 </div>
 
@@ -746,15 +747,15 @@ async function createVault(pin){
   const salt=crypto.getRandomValues(new Uint8Array(16));
   const raw=crypto.getRandomValues(new Uint8Array(32));
   const pinKey=await deriveKey(pin,salt),key=await importKey(raw);
-  V={v:2,plen:pin.length,salt:b64(salt),wrap:await encJson(pinKey,raw),
+  V={v:2,plen:pin.length,salt:b64(salt),wrap:await encJson(pinKey,b64(raw)),
      check:await encJson(key,'nook'),data:await encJson(key,{cards:[],pays:[]})};
   saveVault();S.key=key;S.raw=raw;S.pin=pin;S.cards=[];S.pays=[];
 }
 async function unlockVault(pin){
   const pinKey=await deriveKey(pin,ub64(V.salt));
-  const raw=ub64(await decJson(pinKey,V.wrap));
+  const raw=ub64(JSON.parse(await decJson(pinKey,V.wrap)));
   const key=await importKey(raw);
-  if(await decJson(key,V.check)!=='nook')throw new Error('bad');
+  if(JSON.parse(await decJson(key,V.check))!=='nook')throw new Error('bad');
   const d=JSON.parse(await decJson(key,V.data));
   S.key=key;S.raw=raw;S.pin=pin;S.cards=d.cards||[];S.pays=d.pays||[];
 }
@@ -762,7 +763,7 @@ async function persist(){if(!S.key)return;V.data=await encJson(S.key,{cards:S.ca
 async function rewrapPin(newPin){
   const salt=crypto.getRandomValues(new Uint8Array(16));
   V.salt=b64(salt);V.plen=newPin.length;
-  V.wrap=await encJson(await deriveKey(newPin,salt),S.raw);
+  V.wrap=await encJson(await deriveKey(newPin,salt),b64(S.raw));
   S.pin=newPin;saveVault();
 }
 
@@ -1365,6 +1366,7 @@ function pinPrompt({title='Passcode',sub='',mode='reauth'}){
       <h3>${esc(title)}</h3><div class="psub">${esc(sub)}</div>
       <div class="pin-dots" id="pvDots"></div><div class="pin-err" id="pvErr"></div>
       <div class="keypad" id="pvPad" style="width:min(240px,72vw);gap:9px"></div>
+      <div style="margin-top:14px;font-size:10.5px;color:var(--tx3);font-weight:700;letter-spacing:.08em">SEALED \u00b7 THIS DEVICE ONLY</div>
       <button class="pin-cancel">Cancel</button></div>`;
     r.classList.add('on');
     const plen=mode==='create'?null:(S.pin?S.pin.length:4);
@@ -1440,6 +1442,11 @@ function showLock(){
       haptic(5);paintPinDots(dots,buf,V?V.plen:4);msg.textContent='';
       if(V&&buf.length===V.plen){const attempt=buf.join('');resetBuf();setTimeout(()=>tryUnlock(attempt),130)}
     });
+    $('#lockWipe').onclick=async()=>{
+      if(!await confirmBox({title:'Start over?',body:'If your passcode truly fails, this shreds the vault on this device so you can create a fresh one. Your cards will be gone.',ok:'Erase & start over',danger:true}))return;
+      localStorage.removeItem('kadi.vault');localStorage.removeItem('kadi.settings');
+      location.reload();
+    };
   }
   if(l._resetBuf)l._resetBuf();else paintPinDots($('#lockDots'),[],V?V.plen:4);
 }
@@ -1545,7 +1552,7 @@ document.addEventListener('visibilitychange',()=>{
     const pin=await pinPrompt({title:'Backup passcode',sub:'The passcode that sealed that file',mode:'reauth'});
     if(pin===null)return;
     const bk=await deriveKey(pin,ub64(BV.salt));
-    const raw=ub64(await decJson(bk,BV.wrap));
+    const raw=ub64(JSON.parse(await decJson(bk,BV.wrap)));
     const bd=JSON.parse(await decJson(await importKey(raw),BV.data));
     let n=0;const have=new Set(S.cards.map(c=>c.id));
     (bd.cards||[]).forEach(c=>{if(!have.has(c.id)){c.id=uid();S.cards.push(c);n++}});
@@ -1784,7 +1791,22 @@ window.addEventListener('appinstalled',()=>{installed=true;deferredPrompt=null;
   else if(/iPad|iPhone|iPod/.test(navigator.userAgent))toast('Share \u2192 \u201cAdd to Home Screen\u201d','phone');
   else toast('Browser menu \u2192 \u201cInstall app\u201d or \u201cAdd to Home Screen\u201d','phone');
 };
-if('serviceWorker' in navigator){try{navigator.serviceWorker.register('sw.js').then(swStatus).catch(()=>{})}catch(e){}}
+if('serviceWorker' in navigator){try{
+  const hadCtl=!!navigator.serviceWorker.controller;
+  navigator.serviceWorker.register('sw.js').then(reg=>{
+    swStatus();
+    const check=()=>{try{reg.update()}catch(e){}};
+    document.addEventListener('visibilitychange',()=>{if(!document.hidden)check()});
+    setInterval(check,60*60*1000);
+    let announced=false;
+    navigator.serviceWorker.addEventListener('controllerchange',()=>{
+      swStatus();
+      if(announced||!hadCtl)return;announced=true;
+      confirmBox({title:'Kadi updated',body:'A new version is ready. Reload now to use it?',ok:'Reload'})
+        .then(yes=>{if(yes)location.reload()});
+    });
+  }).catch(()=>{});
+}catch(e){}}
 
 /* ============================================================
    ONBOARD + INIT
@@ -1795,9 +1817,9 @@ function showOnboard(){
     const pin=await createPinFlow();if(pin===null)return;
     await createVault(pin);
     $('#scrOnb').classList.remove('on');
-    renderHome({entrance:true});resetLockTimer();haptic([10,40,10]);
-    toast('Vault created \u2014 only your passcode opens it','shield');
-    runDeep();
+    haptic([10,40,10]);
+    lockApp();
+    toast('Vault created \u2014 enter your new passcode to open it','shield');
   };
   $('#obRestore').onclick=()=>$('#fileImport').click();
 }
